@@ -16,7 +16,6 @@ Calculator/                   // Корень проекта
     │   ├── ExpressionParser.cpp
     │   └── AST/
     │       ├── Node.h
-    │       ├── Node.cpp
     │       ├── BinaryNode.h
     │       ├── BinaryNode.cpp
     │       ├── UnaryNode.h
