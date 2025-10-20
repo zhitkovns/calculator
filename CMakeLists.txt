@@ -23,6 +23,7 @@ set(SRC_FILES
     src/main.cpp
     src/core/Calculator.cpp
     src/core/ExpressionParser.cpp
+    src/core/OperationFactory.cpp 
     src/core/AST/BinaryNode.cpp
     src/core/AST/UnaryNode.cpp
     src/core/AST/NumberNode.cpp

@@ -14,6 +14,8 @@ Calculator/                   // Корень проекта
     │   ├── Calculator.cpp   
     │   ├── ExpressionParser.h
     │   ├── ExpressionParser.cpp
+    │   ├── OperationFactory.h
+    │   ├── OperationFactory.cpp
     │   └── AST/
     │       ├── Node.h
     │       ├── BinaryNode.h
