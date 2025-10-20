@@ -26,9 +26,7 @@ Calculator/                   // Корень проекта
     ├── operations/
     │   ├── IOperation.h
     │   ├── BuiltinOperations.h
-    │   ├── BuiltinOperations.cpp
-    │   ├── PluginOperation.h
-    │   └── PluginOperation.cpp
+    │   └── BuiltinOperations.cpp
     ├── plugins/
     │   ├── PluginManager.h
     │   ├── PluginManager.cpp
