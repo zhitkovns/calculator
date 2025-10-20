@@ -1,5 +1,5 @@
 Архитектура проекта:
-
+```
 Calculator/                   // Корень проекта
 ├── calc.exe                  // Исполняемый файл (создается после сборки)
 ├── plugins/                  // Папка с плагинами
@@ -35,3 +35,4 @@ Calculator/                   // Корень проекта
     │   ├── DynamicLibrary.h
     │   └── DynamicLibrary.cpp
     └── main.cpp
+```
