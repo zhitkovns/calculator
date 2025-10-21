@@ -16,7 +16,6 @@ public:
     PluginManager() = default;
     ~PluginManager() = default;
 
-    // Запрещаем копирование
     PluginManager(const PluginManager&) = delete;
     PluginManager& operator=(const PluginManager&) = delete;
 

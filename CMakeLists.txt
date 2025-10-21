@@ -23,10 +23,10 @@ set(SRC_FILES
     src/main.cpp
     src/core/Calculator.cpp
     src/core/ExpressionParser.cpp
-    src/core/OperationFactory.cpp 
+    src/core/OperationFactory.cpp
+    src/core/AST/NumberNode.cpp
     src/core/AST/BinaryNode.cpp
     src/core/AST/UnaryNode.cpp
-    src/core/AST/NumberNode.cpp
     src/operations/BuiltinOperations.cpp
     src/plugins/PluginManager.cpp
     src/plugins/DynamicLibrary.cpp
@@ -52,9 +52,7 @@ target_link_libraries(calc Kernel32)
 
 # Требуем C++17 для filesystem
 if(MSVC)
-    # MSVC имеет <filesystem> начиная с VS 2017 15.7
     target_compile_features(calc PRIVATE cxx_std_17)
 else()
-    # Для других компиляторов может потребоваться линковка с stdc++fs
     target_link_libraries(calc stdc++fs)
 endif()

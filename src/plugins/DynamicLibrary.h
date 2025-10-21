@@ -13,11 +13,9 @@ public:
     explicit DynamicLibrary(const std::string& filePath);
     ~DynamicLibrary();
 
-    // Запрещаем копирование
     DynamicLibrary(const DynamicLibrary&) = delete;
     DynamicLibrary& operator=(const DynamicLibrary&) = delete;
 
-    // Разрешаем перемещение
     DynamicLibrary(DynamicLibrary&& other) noexcept;
     DynamicLibrary& operator=(DynamicLibrary&& other) noexcept;
 

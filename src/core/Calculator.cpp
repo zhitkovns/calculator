@@ -22,13 +22,13 @@ void Calculator::initialize() {
         // Создаем парсер с готовой фабрикой операций
         parser_ = std::make_unique<ExpressionParser>(operationFactory_);
         
-        std::cout << "Калькулятор инициализирован. " 
-                  << "Операций: " << getAvailableOperations().size() 
-                  << " (встроенные: " << operationFactory_.getAvailableOperations().size() - pluginManager_.getAvailableOperations().size()
-                  << ", плагины: " << pluginManager_.getAvailableOperations().size() << ")" << std::endl;
+        std::cout << "The calculator is initialized. " 
+                  << "Operations: " << getAvailableOperations().size() 
+                  << " (built-in: " << operationFactory_.getAvailableOperations().size() - pluginManager_.getAvailableOperations().size()
+                  << ", plugins: " << pluginManager_.getAvailableOperations().size() << ")" << std::endl;
                   
     } catch (const std::exception& e) {
-        std::cerr << "Ошибка инициализации калькулятора: " << e.what() << std::endl;
+        std::cerr << "Calculator initialization error: " << e.what() << std::endl;
         throw;
     }
 }
@@ -55,18 +55,18 @@ void Calculator::registerBuiltinOperations() {
 
 double Calculator::calculate(const std::string& expression) {
     if (expression.empty()) {
-        throw std::invalid_argument("Пустое выражение");
+        throw std::invalid_argument("Empty expression");
     }
 
     if (!parser_) {
-        throw std::runtime_error("Калькулятор не инициализирован. Вызовите initialize()");
+        throw std::runtime_error("The calculator is not initialized. Call initialize()");
     }
 
     try {
         return parser_->parse(expression)->evaluate();
         
     } catch (const std::exception& e) {
-        throw std::runtime_error("Ошибка вычисления: " + std::string(e.what()));
+        throw std::runtime_error("Calculation error: " + std::string(e.what()));
     }
 }
 

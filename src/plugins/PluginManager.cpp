@@ -12,12 +12,12 @@ void PluginManager::loadPlugins(const std::string& pluginsDir) {
     
     // Проверяем существование папки
     if (!std::filesystem::exists(pluginsDir)) {
-        std::cout << "Папка плагинов не найдена: " << pluginsDir << std::endl;
+        std::cout << "The plugins folder was not found: " << pluginsDir << std::endl;
         return;
     }
     
     if (!std::filesystem::is_directory(pluginsDir)) {
-        std::cerr << "Указанный путь не является папкой: " << pluginsDir << std::endl;
+        std::cerr << "The specified path is not a folder: " << pluginsDir << std::endl;
         return;
     }
     
@@ -26,9 +26,9 @@ void PluginManager::loadPlugins(const std::string& pluginsDir) {
         if (entry.is_regular_file() && entry.path().extension() == ".dll") {
             try {
                 loadPlugin(entry.path().string());
-                std::cout << "Загружен плагин: " << entry.path().filename() << std::endl;
+                std::cout << "The plugin is loaded: " << entry.path().filename() << std::endl;
             } catch (const std::exception& e) {
-                std::cerr << "Ошибка загрузки плагина " << entry.path().filename() 
+                std::cerr << "Error loading the plugin " << entry.path().filename() 
                          << ": " << e.what() << std::endl;
             }
         }
@@ -42,13 +42,13 @@ void PluginManager::loadPlugin(const std::string& filePath) {
     // Получаем функцию создания операции
     auto createFunc = library->getFunction<CreateOperationFunc>("createOperation");
     if (!createFunc) {
-        throw std::runtime_error("Функция 'createOperation' не найдена в DLL");
+        throw std::runtime_error("The 'createOperation' function is not found in the DLL");
     }
     
     // Создаем операцию через функцию из DLL
     IOperation* rawOperation = createFunc();
     if (!rawOperation) {
-        throw std::runtime_error("DLL вернула nullptr для операции");
+        throw std::runtime_error("The DLL returned a nullptr for the operation");
     }
     
     std::unique_ptr<IOperation> operation(rawOperation);
@@ -56,7 +56,7 @@ void PluginManager::loadPlugin(const std::string& filePath) {
     
     // Проверяем уникальность имени операции
     if (operations_.find(operationName) != operations_.end()) {
-        throw std::runtime_error("Операция с именем '" + operationName + "' уже зарегистрирована");
+        throw std::runtime_error("Operation with name '" + operationName + "' already registered");
     }
     
     // Регистрируем операцию и сохраняем библиотеку
@@ -66,12 +66,12 @@ void PluginManager::loadPlugin(const std::string& filePath) {
 
 void PluginManager::registerOperation(std::unique_ptr<IOperation> operation) {
     if (!operation) {
-        throw std::invalid_argument("Попытка зарегистрировать nullptr операцию");
+        throw std::invalid_argument("Attempt to register a nullptr operation");
     }
     
     std::string name = operation->getName();
     if (operations_.find(name) != operations_.end()) {
-        throw std::runtime_error("Операция с именем '" + name + "' уже зарегистрирована");
+        throw std::runtime_error("Operation with name '" + name + "' already registered");
     }
     
     operations_[name] = std::move(operation);
