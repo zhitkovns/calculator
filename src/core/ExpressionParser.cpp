@@ -16,14 +16,15 @@ std::unique_ptr<Node> ExpressionParser::parse(const std::string& expression) {
         auto tokens = tokenize(expression);
         
         if (tokens.empty()) {
-            throw std::invalid_argument("There are no tokens for parsing");
+            throw std::invalid_argument("No tokens to parse");
         }
         
         size_t index = 0;
         auto result = parseExpression(tokens, index);
         
         if (index != tokens.size()) {
-            throw std::runtime_error("Undecompressed tokens in the expression");
+            throw std::runtime_error("Unprocessed tokens in expression. Last token: '" + 
+                                   (index < tokens.size() ? tokens[index] : "none") + "'");
         }
         
         return result;
@@ -54,8 +55,17 @@ std::vector<std::string> ExpressionParser::tokenize(const std::string& expressio
                 currentToken.clear();
             }
             tokens.push_back(std::string(1, c));
-        } else {
+        } 
+        else if (std::isdigit(static_cast<unsigned char>(c)) || c == '.' || 
+                 (c == '-' && currentToken.empty() && (i == 0 || expression[i-1] == '(' || isOperator(std::string(1, expression[i-1]))))) {
             currentToken += c;
+        }
+        // Проверьте, является ли символ буквой (для имен функций)
+        else if (std::isalpha(static_cast<unsigned char>(c))) {
+            currentToken += c;
+        }
+        else {
+            throw std::runtime_error("Invalid character in expression: " + std::string(1, c));
         }
     }
     
@@ -72,24 +82,16 @@ std::unique_ptr<Node> ExpressionParser::parseExpression(const std::vector<std::s
     while (index < tokens.size()) {
         std::string token = tokens[index];
         
-        if (!isOperator(token) || token == ")") {
+        if (token == "+" || token == "-") {
+            IOperation* op = operationFactory_.getOperation(token);
+            if (!op) break;
+            
+            index++;
+            auto right = parseTerm(tokens, index);
+            left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
+        } else {
             break;
         }
-        
-        IOperation* op = operationFactory_.getOperation(token);
-        if (!op || op->getType() != OperationType::BINARY) {
-            break;
-        }
-        
-        // Для операций + и - проверяем приоритет
-        if (op->getPriority() > 1) { // Если приоритет выше чем у +/-
-            break;
-        }
-        
-        index++;
-        
-        auto right = parseTerm(tokens, index);
-        left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
     }
     
     return left;
@@ -101,24 +103,25 @@ std::unique_ptr<Node> ExpressionParser::parseTerm(const std::vector<std::string>
     while (index < tokens.size()) {
         std::string token = tokens[index];
         
-        if (!isOperator(token) || token == ")") {
+        if (token == "*" || token == "/") {
+            IOperation* op = operationFactory_.getOperation(token);
+            if (!op) break;
+            
+            index++;
+            auto right = parseFactor(tokens, index);
+            left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
+        } 
+        else if (token == "^") {
+            IOperation* op = operationFactory_.getOperation(token);
+            if (!op) break;
+            
+            index++;
+            auto right = parseTerm(tokens, index); // Right-associative
+            left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
+        }
+        else {
             break;
         }
-        
-        IOperation* op = operationFactory_.getOperation(token);
-        if (!op || op->getType() != OperationType::BINARY) {
-            break;
-        }
-        
-        // Только операции * и / (приоритет 2)
-        if (op->getPriority() != 2) {
-            break;
-        }
-        
-        index++;
-        
-        auto right = parseFactor(tokens, index);
-        left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
     }
     
     return left;
@@ -126,7 +129,7 @@ std::unique_ptr<Node> ExpressionParser::parseTerm(const std::vector<std::string>
 
 std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::string>& tokens, size_t& index) {
     if (index >= tokens.size()) {
-        throw std::runtime_error("The unexpected end of an expression");
+        throw std::runtime_error("Unexpected end of expression");
     }
     
     std::string token = tokens[index];
@@ -138,35 +141,28 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
     }
     
     if (token == "(") {
-        index++; // Потребляем "("
+        index++;
         auto expr = parseExpression(tokens, index);
         
         if (index >= tokens.size() || tokens[index] != ")") {
-            throw std::runtime_error("A closing parenthesis was expected");
+            throw std::runtime_error("Expected closing parenthesis");
         }
-        index++; // Потребляем ")"
+        index++;
         
         return expr;
     }
     
-    // Обработка унарного минуса
     if (token == "-") {
         // Проверяем, является ли это унарным минусом
         if (index == 0 || tokens[index - 1] == "(" || isOperator(tokens[index - 1])) {
-            index++; // Потребляем "-"
+            index++;
             IOperation* unaryMinus = operationFactory_.getOperation("unary_minus");
             if (!unaryMinus) {
-                throw std::runtime_error("The unary minus sign is not registered");
+                throw std::runtime_error("Unary minus not registered");
             }
             auto operand = parseFactor(tokens, index);
             return std::make_unique<UnaryNode>(std::move(operand), unaryMinus);
         }
-    }
-    
-    IOperation* func = operationFactory_.getOperation(token);
-    if (func && func->getType() == OperationType::FUNCTION) {
-        // TODO: Реализовать парсинг функций
-        throw std::runtime_error("The functions are not supported yet: " + token);
     }
     
     throw std::runtime_error("Unknown token: " + token);
@@ -185,5 +181,6 @@ bool ExpressionParser::isNumber(const std::string& token) const {
 }
 
 bool ExpressionParser::isOperator(const std::string& token) const {
-    return token == "+" || token == "-" || token == "*" || token == "/" || token == "^";
+    IOperation* op = operationFactory_.getOperation(token);
+    return op && (op->getType() == OperationType::BINARY || op->getType() == OperationType::UNARY);
 }
