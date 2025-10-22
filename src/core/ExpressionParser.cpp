@@ -111,12 +111,13 @@ std::unique_ptr<Node> ExpressionParser::parseTerm(const std::vector<std::string>
             auto right = parseFactor(tokens, index);
             left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
         } 
+        // ^ - левоассоциативен теперь
         else if (token == "^") {
             IOperation* op = operationFactory_.getOperation(token);
             if (!op) break;
             
             index++;
-            auto right = parseTerm(tokens, index); // Right-associative
+            auto right = parseFactor(tokens, index);
             left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
         }
         else {
