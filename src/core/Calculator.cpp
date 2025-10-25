@@ -2,6 +2,7 @@
 #include "operations/wrappers/ExtensionOperationWrapper.h"
 #include <iostream>
 #include <stdexcept>
+#include <unordered_set>
 
 Calculator::Calculator() {
     registerBuiltinOperations();
@@ -9,19 +10,34 @@ Calculator::Calculator() {
 
 void Calculator::initialize() {
     try {
-        // Загружаем плагины из папки ./extensions/ через ExtensionRegistry
-        extensionRegistry_.scanExtensionsDirectory("./extensions/");
+        // Загружаем плагины из папки ./plugins/
+        extensionRegistry_.scanExtensionsDirectory("./plugins/");
         
-        // Регистрируем функции из расширений в фабрике операций
+        // Сохраним количество built-in операций ДО регистрации плагинов
+        size_t builtinCountBefore = operationFactory_.getAvailableOperations().size();
+        
+        // Регистрируем функции из плагинов в фабрике операций
         auto availableExtensions = extensionRegistry_.getAvailableExtensions();
+        
+        // Временный набор для уникальных имен (только основные)
+        std::unordered_set<std::string> uniqueFunctionNames;
+        
         for (const auto& funcName : availableExtensions) {
             auto extension = extensionRegistry_.findExtension(funcName);
             if (extension) {
-                // Создаем обертку для функции расширения
-                auto wrapper = std::make_shared<ExtensionOperationWrapper>(extension, funcName);
-                // Сохраняем обертку и регистрируем в фабрике
-                extensionWrappers_.push_back(wrapper);
-                operationFactory_.registerOperation(funcName, wrapper.get());
+                // Берем только основное имя функции
+                std::string primaryName = extension->getPrimaryName();
+                
+                // Регистрируем только если еще не зарегистрировано
+                if (uniqueFunctionNames.find(primaryName) == uniqueFunctionNames.end()) {
+                    uniqueFunctionNames.insert(primaryName);
+                    
+                    // Создаем обертку для функции плагина
+                    auto wrapper = std::make_shared<ExtensionOperationWrapper>(extension, primaryName);
+                    // Сохраняем обертку и регистрируем в фабрике
+                    extensionWrappers_.push_back(wrapper);
+                    operationFactory_.registerOperation(primaryName, wrapper.get());
+                }
             }
         }
         
@@ -30,8 +46,8 @@ void Calculator::initialize() {
         
         std::cout << "The calculator is initialized. " 
                   << "Operations: " << getAvailableOperations().size() 
-                  << " (built-in: " << (operationFactory_.getAvailableOperations().size() - availableExtensions.size())
-                  << ", extensions: " << availableExtensions.size() << ")" << std::endl;
+                  << " (built-in: " << builtinCountBefore
+                  << ", plugins: " << uniqueFunctionNames.size() << ")" << std::endl;
                   
     } catch (const std::exception& e) {
         std::cerr << "Calculator initialization error: " << e.what() << std::endl;
@@ -80,12 +96,17 @@ std::vector<std::string> Calculator::getAvailableOperations() const {
     auto builtinOps = operationFactory_.getAvailableOperations();
     auto extensionOps = extensionRegistry_.getAvailableExtensions();
     
-    // Объединяем списки
-    std::vector<std::string> allOps;
-    allOps.insert(allOps.end(), builtinOps.begin(), builtinOps.end());
-    allOps.insert(allOps.end(), extensionOps.begin(), extensionOps.end());
+    // Используем set для устранения дубликатов
+    std::unordered_set<std::string> uniqueOps;
     
-    return allOps;
+    for (const auto& op : builtinOps) {
+        uniqueOps.insert(op);
+    }
+    for (const auto& op : extensionOps) {
+        uniqueOps.insert(op);
+    }
+    
+    return std::vector<std::string>(uniqueOps.begin(), uniqueOps.end());
 }
 
 bool Calculator::hasOperation(const std::string& name) const {

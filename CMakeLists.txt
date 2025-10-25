@@ -8,11 +8,12 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# ИЗМЕНЕНИЕ: calc.exe в папке проекта (не в build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-# Создаем папку extensions
-add_custom_target(create_extensions_dir ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/extensions
+# Создаем папку plugins в папке проекта
+add_custom_target(create_plugins_dir ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/plugins
 )
 
 # Основное приложение
@@ -38,11 +39,12 @@ include_directories(
     src/core/
     src/core/AST/
     src/operations/
+    src/operations/wrappers/
     src/plugins/
 )
 
 add_executable(calc ${MAIN_SRC_FILES})
-add_dependencies(calc create_extensions_dir)
+add_dependencies(calc create_plugins_dir)
 target_link_libraries(calc Kernel32)
 
 if(MSVC)

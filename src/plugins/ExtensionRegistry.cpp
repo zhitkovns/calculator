@@ -3,6 +3,7 @@
 #include <chrono>
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
 
 ExtensionRegistry::ExtensionRegistry() {
     setupHostServices();
@@ -112,8 +113,11 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
     
     // Check if directory exists
     if (!std::filesystem::exists(directory)) {
+        std::cout << "Plugins directory not found: " << directory << std::endl;
         return;
     }
+    
+    std::cout << "Scanning plugins directory: " << directory << std::endl;
     
     for (const auto& entry : std::filesystem::directory_iterator(directory, ec)) {
         if (ec) {
@@ -138,10 +142,13 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
             continue;
         }
         
-        // Try to load the extension
+        // Try to load the plugin and get function name from metadata
         std::string error_msg;
         if (registerExtension(path_string, &error_msg)) {
-            // Successfully loaded
+            std::cout << "✓ Loaded plugin: " << file_path.filename().string() << std::endl;
+        } else {
+            std::cerr << "✗ Failed to load plugin " << file_path.filename().string() 
+                      << ": " << error_msg << std::endl;
         }
     }
 }
@@ -156,11 +163,17 @@ std::shared_ptr<ExtensionUnit> ExtensionRegistry::findExtension(const std::strin
 }
 
 std::vector<std::string> ExtensionRegistry::getAvailableExtensions() const {
-    std::vector<std::string> extensions;
-    for (const auto& entry : extensions_by_name_) {
-        extensions.push_back(entry.first);
+    std::unordered_set<std::string> uniqueExtensions;
+    
+    for (const auto& entry : extensions_by_path_) {
+        auto extension = entry.second;
+        if (extension) {
+            // Берем только основное имя, а не все имена
+            uniqueExtensions.insert(extension->getPrimaryName());
+        }
     }
-    return extensions;
+    
+    return std::vector<std::string>(uniqueExtensions.begin(), uniqueExtensions.end());
 }
 
 bool ExtensionRegistry::extensionExists(const std::string& operation_name) const {
