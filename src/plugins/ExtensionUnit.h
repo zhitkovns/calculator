@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <filesystem>
 
 // Represents a single loaded extension
 class ExtensionUnit {
@@ -16,7 +17,7 @@ private:
     extension_setup_t setup_func_ = nullptr;
     extension_cleanup_t cleanup_func_ = nullptr;
     bool is_active_ = false;
-    std::filesystem::file_time_type modification_time_;
+    std::filesystem::file_time_type modification_time_;  // Используем родной тип
 
 public:
     ExtensionUnit() = default;
@@ -54,7 +55,7 @@ public:
     bool isLoaded() const { return library_unit_ != nullptr; }
     bool isActive() const { return is_active_; }
     const std::string& getLibraryPath() const { return library_path_; }
-    std::filesystem::file_time_type getModTime() const { return modification_time_; }
+    std::filesystem::file_time_type getModTime() const { return modification_time_; }  // Возвращаем родной тип
 
 private:
     void releaseResources();

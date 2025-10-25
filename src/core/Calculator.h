@@ -11,7 +11,7 @@
 // Главный класс калькулятора - оркестратор всей системы
 class Calculator {
 private:
-    PluginManager pluginManager_;
+    ExtensionRegistry extensionRegistry_;  // Заменили PluginManager на ExtensionRegistry
     OperationFactory operationFactory_;
     std::unique_ptr<ExpressionParser> parser_;
     

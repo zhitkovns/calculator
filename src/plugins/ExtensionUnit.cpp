@@ -1,6 +1,5 @@
 #include "ExtensionUnit.h"
 #include "HostIntegration.h"
-#include <filesystem>
 #include <algorithm>
 #include <stdexcept>
 
@@ -17,7 +16,7 @@ ExtensionUnit::ExtensionUnit(ExtensionUnit&& other) noexcept
     , setup_func_(other.setup_func_)
     , cleanup_func_(other.cleanup_func_)
     , is_active_(other.is_active_)
-    , modification_time_(other.modification_time_) {
+    , modification_time_(other.modification_time_) {  // Копируем напрямую
     other.meta_data_ = nullptr;
     other.get_info_func_ = nullptr;
     other.setup_func_ = nullptr;
@@ -36,7 +35,7 @@ ExtensionUnit& ExtensionUnit::operator=(ExtensionUnit&& other) noexcept {
         setup_func_ = other.setup_func_;
         cleanup_func_ = other.cleanup_func_;
         is_active_ = other.is_active_;
-        modification_time_ = other.modification_time_;
+        modification_time_ = other.modification_time_;  // Копируем напрямую
         
         other.meta_data_ = nullptr;
         other.get_info_func_ = nullptr;
@@ -99,11 +98,11 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
             }
         }
         
-        // Record file modification time
+        // Record file modification time using native filesystem type
         std::error_code ec;
         modification_time_ = std::filesystem::last_write_time(library_path, ec);
         if (ec) {
-            modification_time_ = {};
+            modification_time_ = std::filesystem::file_time_type::min();
         }
         
         return true;

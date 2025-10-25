@@ -191,7 +191,7 @@ void ExtensionRegistry::refreshExtensions() {
             continue;
         }
         
-        // Check if file has been modified
+        // Compare file_time_type directly - no conversion needed!
         if (current_mod_time > extension->getModTime()) {
             // File changed, reload it
             std::string error_msg;
@@ -200,7 +200,6 @@ void ExtensionRegistry::refreshExtensions() {
         }
     }
 }
-
 std::string ExtensionRegistry::standardizeName(const std::string& name) const {
     std::string result = name;
     

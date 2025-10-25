@@ -8,24 +8,16 @@ Calculator::Calculator() {
 
 void Calculator::initialize() {
     try {
-        // Загружаем плагины из папки ./plugins/
-        pluginManager_.loadPlugins();
-        
-        // Регистрируем операции из плагинов в фабрике
-        for (const auto& opName : pluginManager_.getAvailableOperations()) {
-            IOperation* op = pluginManager_.getOperation(opName);
-            if (op) {
-                operationFactory_.registerOperation(opName, op);
-            }
-        }
+        // Загружаем плагины из папки ./extensions/ через ExtensionRegistry
+        extensionRegistry_.scanExtensionsDirectory("./extensions/");
         
         // Создаем парсер с готовой фабрикой операций
         parser_ = std::make_unique<ExpressionParser>(operationFactory_);
         
         std::cout << "The calculator is initialized. " 
                   << "Operations: " << getAvailableOperations().size() 
-                  << " (built-in: " << operationFactory_.getAvailableOperations().size() - pluginManager_.getAvailableOperations().size()
-                  << ", plugins: " << pluginManager_.getAvailableOperations().size() << ")" << std::endl;
+                  << " (built-in: " << operationFactory_.getAvailableOperations().size()
+                  << ", extensions: " << extensionRegistry_.getAvailableExtensions().size() << ")" << std::endl;
                   
     } catch (const std::exception& e) {
         std::cerr << "Calculator initialization error: " << e.what() << std::endl;
@@ -71,9 +63,17 @@ double Calculator::calculate(const std::string& expression) {
 }
 
 std::vector<std::string> Calculator::getAvailableOperations() const {
-    return operationFactory_.getAvailableOperations();
+    auto builtinOps = operationFactory_.getAvailableOperations();
+    auto extensionOps = extensionRegistry_.getAvailableExtensions();
+    
+    // Объединяем списки
+    std::vector<std::string> allOps;
+    allOps.insert(allOps.end(), builtinOps.begin(), builtinOps.end());
+    allOps.insert(allOps.end(), extensionOps.begin(), extensionOps.end());
+    
+    return allOps;
 }
 
 bool Calculator::hasOperation(const std::string& name) const {
-    return operationFactory_.hasOperation(name);
+    return operationFactory_.hasOperation(name) || extensionRegistry_.extensionExists(name);
 }
