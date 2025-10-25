@@ -2,6 +2,7 @@
 #include "HostIntegration.h"
 #include <chrono>
 #include <algorithm>
+#include <iostream>
 
 ExtensionRegistry::ExtensionRegistry() {
     setupHostServices();

@@ -49,5 +49,5 @@ else()
     target_link_libraries(calc stdc++fs)
 endif()
 
-# # Подключаем сборку плагинов
-# add_subdirectory(src/extensions)
+# Подключаем сборку плагинов
+add_subdirectory(src/extensions)
