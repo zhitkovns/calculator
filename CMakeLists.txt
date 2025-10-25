@@ -24,7 +24,9 @@ set(MAIN_SRC_FILES
     src/core/AST/NumberNode.cpp
     src/core/AST/BinaryNode.cpp
     src/core/AST/UnaryNode.cpp
+    src/core/AST/FunctionNode.cpp
     src/operations/BuiltinOperations.cpp
+    src/operations/wrappers/ExtensionOperationWrapper.cpp
     src/plugins/ExtensionRegistry.cpp
     src/plugins/ExtensionUnit.cpp
     src/plugins/HostIntegration.cpp

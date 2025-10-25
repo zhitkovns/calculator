@@ -1,4 +1,6 @@
 #include "ExpressionParser.h"
+#include "AST/FunctionNode.h"
+#include "operations/wrappers/ExtensionOperationWrapper.h"
 #include <sstream>
 #include <cctype>
 #include <stdexcept>
@@ -141,6 +143,42 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
         return std::make_unique<NumberNode>(value);
     }
     
+    // ПРОВЕРКА ФУНКЦИЙ (добавьте этот блок)
+    if (std::isalpha(static_cast<unsigned char>(token[0]))) {
+        IOperation* func = operationFactory_.getOperation(token);
+        if (func && func->getType() == OperationType::FUNCTION) {
+            index++;
+            
+            // Проверяем открывающую скобку
+            if (index >= tokens.size() || tokens[index] != "(") {
+                throw std::runtime_error("Expected '(' after function name: " + token);
+            }
+            index++;
+            
+            // Парсим аргументы функции
+            std::vector<std::unique_ptr<Node>> arguments;
+            
+            if (index >= tokens.size() || tokens[index] == ")") {
+                throw std::runtime_error("Function " + token + " requires arguments");
+            }
+            
+            // Парсим первый аргумент
+            arguments.push_back(parseExpression(tokens, index));
+            
+            // TODO: Добавить поддержку нескольких аргументов через запятую
+            // Пока поддерживаем только функции с одним аргументом
+            
+            // Проверяем закрывающую скобку
+            if (index >= tokens.size() || tokens[index] != ")") {
+                throw std::runtime_error("Expected ')' after function arguments: " + token);
+            }
+            index++;
+            
+            // Создаем узел функции
+            return std::make_unique<FunctionNode>(std::move(arguments), func);
+        }
+    }
+    
     if (token == "(") {
         index++;
         auto expr = parseExpression(tokens, index);
@@ -155,7 +193,7 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
     
     if (token == "-") {
         // Проверяем, является ли это унарным минусом
-        if (index == 0 || tokens[index - 1] == "(" || isOperator(tokens[index - 1])) {
+        if (index == 0 || (index > 0 && (tokens[index - 1] == "(" || isOperator(tokens[index - 1])))) {
             index++;
             IOperation* unaryMinus = operationFactory_.getOperation("unary_minus");
             if (!unaryMinus) {

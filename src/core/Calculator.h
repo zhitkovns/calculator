@@ -7,13 +7,18 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
+
+// Предварительное объявление чтобы избежать циклических зависимостей
+class ExtensionOperationWrapper;
 
 // Главный класс калькулятора - оркестратор всей системы
 class Calculator {
 private:
-    ExtensionRegistry extensionRegistry_;  // Заменили PluginManager на ExtensionRegistry
+    ExtensionRegistry extensionRegistry_;
     OperationFactory operationFactory_;
     std::unique_ptr<ExpressionParser> parser_;
+    std::vector<std::shared_ptr<ExtensionOperationWrapper>> extensionWrappers_;
     
 public:
     Calculator();

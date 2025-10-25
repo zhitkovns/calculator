@@ -1,4 +1,5 @@
 #include "Calculator.h"
+#include "operations/wrappers/ExtensionOperationWrapper.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -11,13 +12,26 @@ void Calculator::initialize() {
         // Загружаем плагины из папки ./extensions/ через ExtensionRegistry
         extensionRegistry_.scanExtensionsDirectory("./extensions/");
         
+        // Регистрируем функции из расширений в фабрике операций
+        auto availableExtensions = extensionRegistry_.getAvailableExtensions();
+        for (const auto& funcName : availableExtensions) {
+            auto extension = extensionRegistry_.findExtension(funcName);
+            if (extension) {
+                // Создаем обертку для функции расширения
+                auto wrapper = std::make_shared<ExtensionOperationWrapper>(extension, funcName);
+                // Сохраняем обертку и регистрируем в фабрике
+                extensionWrappers_.push_back(wrapper);
+                operationFactory_.registerOperation(funcName, wrapper.get());
+            }
+        }
+        
         // Создаем парсер с готовой фабрикой операций
         parser_ = std::make_unique<ExpressionParser>(operationFactory_);
         
         std::cout << "The calculator is initialized. " 
                   << "Operations: " << getAvailableOperations().size() 
-                  << " (built-in: " << operationFactory_.getAvailableOperations().size()
-                  << ", extensions: " << extensionRegistry_.getAvailableExtensions().size() << ")" << std::endl;
+                  << " (built-in: " << (operationFactory_.getAvailableOperations().size() - availableExtensions.size())
+                  << ", extensions: " << availableExtensions.size() << ")" << std::endl;
                   
     } catch (const std::exception& e) {
         std::cerr << "Calculator initialization error: " << e.what() << std::endl;
