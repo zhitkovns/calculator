@@ -51,7 +51,7 @@ std::vector<std::string> ExpressionParser::tokenize(const std::string& expressio
             continue;
         }
         
-        if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')') {
+        if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')' || c == ',') {
             if (!currentToken.empty()) {
                 tokens.push_back(currentToken);
                 currentToken.clear();
@@ -113,7 +113,6 @@ std::unique_ptr<Node> ExpressionParser::parseTerm(const std::vector<std::string>
             auto right = parseFactor(tokens, index);
             left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
         } 
-        // ^ - левоассоциативен теперь
         else if (token == "^") {
             IOperation* op = operationFactory_.getOperation(token);
             if (!op) break;
@@ -143,9 +142,10 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
         return std::make_unique<NumberNode>(value);
     }
     
-    // ПРОВЕРКА ФУНКЦИЙ (добавьте этот блок)
+    // ПРОВЕРКА ФУНКЦИЙ
     if (std::isalpha(static_cast<unsigned char>(token[0]))) {
         IOperation* func = operationFactory_.getOperation(token);
+        
         if (func && func->getType() == OperationType::FUNCTION) {
             index++;
             
@@ -164,9 +164,6 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
             
             // Парсим первый аргумент
             arguments.push_back(parseExpression(tokens, index));
-            
-            // TODO: Добавить поддержку нескольких аргументов через запятую
-            // Пока поддерживаем только функции с одним аргументом
             
             // Проверяем закрывающую скобку
             if (index >= tokens.size() || tokens[index] != ")") {

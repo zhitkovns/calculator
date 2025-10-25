@@ -3,6 +3,7 @@
 #include "AST/NumberNode.h"
 #include "AST/BinaryNode.h"
 #include "AST/UnaryNode.h"
+#include "AST/FunctionNode.h"
 #include "OperationFactory.h"
 #include <memory>
 #include <string>

@@ -16,7 +16,7 @@ struct HostServices {
 // Extension metadata
 struct ExtensionMeta {
     int abi_version;                    // Must be EXTENSION_ABI_VERSION
-    const char* operation_name;         // Operation name like "logarithm", "sine"
+    const char* operation_name;         // Operation name like "logarithm", "sin"
     size_t name_length;                 // Name length
     double (*compute)(size_t arg_count, const double* arguments, int* error_code, 
                      char* error_text, size_t error_buffer_size);

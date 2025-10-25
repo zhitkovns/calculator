@@ -191,7 +191,7 @@ void ExtensionRegistry::refreshExtensions() {
             continue;
         }
         
-        // Compare file_time_type directly - no conversion needed!
+        // Compare file_time_type directly
         if (current_mod_time > extension->getModTime()) {
             // File changed, reload it
             std::string error_msg;
@@ -200,6 +200,7 @@ void ExtensionRegistry::refreshExtensions() {
         }
     }
 }
+
 std::string ExtensionRegistry::standardizeName(const std::string& name) const {
     std::string result = name;
     
@@ -230,13 +231,14 @@ bool ExtensionRegistry::isValidLibraryFile(const std::filesystem::path& file_pat
         return false;
     }
     
-    // Check extension
+    // Check extension - разрешаем и .dll и .exe
     auto extension = file_path.extension().string();
     std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
         return std::tolower(c);
     });
     
-    return extension == ".dll";
+    // Разрешаем оба расширения
+    return (extension == ".dll" || extension == ".exe");
 }
 
 void ExtensionRegistry::removeBackupFiles() {
