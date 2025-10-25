@@ -25,9 +25,9 @@ struct ExtensionMeta {
     unsigned priority_level;            // Priority 0-4
     bool is_operation;                  // Is this an operation like +, - etc.
     bool right_to_left;                 // Right-to-left associativity
-    const char** alternative_names;     // Other names for this operation
-    size_t* alt_name_lengths;          // Alternative name lengths
-    size_t alt_name_count;             // Number of alternative names
+    const char** additional_names;      // Additional names for this operation
+    size_t* additional_name_lengths;    // Additional name lengths
+    size_t additional_name_count;       // Number of additional names
 };
 
 // Extension function signatures

@@ -1,7 +1,7 @@
 #pragma once
 #include "operations/IOperation.h"
 #include "operations/BuiltinOperations.h"
-#include "plugins/PluginManager.h"
+#include "plugins/ExtensionRegistry.h"
 #include "ExpressionParser.h"
 #include "OperationFactory.h"
 #include <memory>

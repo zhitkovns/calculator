@@ -90,11 +90,11 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
             operation_names_.emplace_back(meta_data_->operation_name, meta_data_->name_length);
         }
         
-        // Add alternative names
-        if (meta_data_->alt_name_count > 0 && meta_data_->alternative_names && meta_data_->alt_name_lengths) {
-            for (size_t i = 0; i < meta_data_->alt_name_count; ++i) {
-                if (meta_data_->alternative_names[i] && meta_data_->alt_name_lengths[i] > 0) {
-                    operation_names_.emplace_back(meta_data_->alternative_names[i], meta_data_->alt_name_lengths[i]);
+        // Add additional names
+        if (meta_data_->additional_name_count > 0 && meta_data_->additional_names && meta_data_->additional_name_lengths) {
+            for (size_t i = 0; i < meta_data_->additional_name_count; ++i) {
+                if (meta_data_->additional_names[i] && meta_data_->additional_name_lengths[i] > 0) {
+                operation_names_.emplace_back(meta_data_->additional_names[i], meta_data_->additional_name_lengths[i]);
                 }
             }
         }
