@@ -15,7 +15,6 @@ void printHelp() {
     std::cout << "Examples of expressions:" << std::endl;
     std::cout << "  2 + 3 * 4" << std::endl;
     std::cout << "  (2 + 3) * 4" << std::endl;
-    std::cout << "  2 ^ 3 + 1" << std::endl;
     std::cout << "  -5 + 10" << std::endl;
     std::cout << "===================" << std::endl;
 }
