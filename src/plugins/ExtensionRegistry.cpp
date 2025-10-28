@@ -113,16 +113,24 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
     
     // Check if directory exists
     if (!std::filesystem::exists(directory)) {
-        std::cout << "Plugins directory not found: " << directory << std::endl;
+        std::cout << "Plugins directory not found: " << directory << ". Continuing without plugins." << std::endl;
+        return;
+    }
+    
+    // Check if it's actually a directory
+    if (!std::filesystem::is_directory(directory)) {
+        std::cerr << "Error: " << directory << " is not a directory. Continuing without plugins." << std::endl;
         return;
     }
     
     std::cout << "Scanning plugins directory: " << directory << std::endl;
     
     std::vector<std::string> loadedPlugins;
+    std::vector<std::string> failedPlugins;
     
     for (const auto& entry : std::filesystem::directory_iterator(directory, ec)) {
         if (ec) {
+            std::cerr << "Error accessing file: " << ec.message() << std::endl;
             continue;
         }
         
@@ -144,17 +152,18 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
             continue;
         }
         
-        // Try to load the plugin and get function name from metadata
+        // Try to load the plugin
         std::string error_msg;
         if (registerExtension(path_string, &error_msg)) {
             loadedPlugins.push_back(file_path.filename().string());
         } else {
+            failedPlugins.push_back(file_path.filename().string());
             std::cerr << "Failed to load plugin " << file_path.filename().string() 
                       << ": " << error_msg << std::endl;
         }
     }
     
-    // Print loaded plugins as comma-separated list
+    // Print results
     if (!loadedPlugins.empty()) {
         std::cout << "Loaded plugins: ";
         for (size_t i = 0; i < loadedPlugins.size(); ++i) {
@@ -164,7 +173,13 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
             }
         }
         std::cout << std::endl;
-    } else {
+    }
+    
+    if (!failedPlugins.empty()) {
+        std::cout << "Failed to load: " << failedPlugins.size() << " plugin(s). Check errors above." << std::endl;
+    }
+    
+    if (loadedPlugins.empty() && failedPlugins.empty()) {
         std::cout << "No plugins found in directory" << std::endl;
     }
 }

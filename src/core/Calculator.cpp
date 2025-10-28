@@ -13,30 +13,32 @@ void Calculator::initialize() {
         // Загружаем плагины из папки ./plugins/
         extensionRegistry_.scanExtensionsDirectory("./plugins/");
         
-        // Сохраним количество built-in операций до регистрации плагинов
+        // Даже если не загрузились плагины, продолжаем работу
         size_t builtinCountBefore = operationFactory_.getAvailableOperations().size();
         
         // Регистрируем функции из плагинов в фабрике операций
         auto availableExtensions = extensionRegistry_.getAvailableExtensions();
         
-        // Временный набор для уникальных имен (только основные)
         std::unordered_set<std::string> uniqueFunctionNames;
+        size_t successfullyRegistered = 0;
         
         for (const auto& funcName : availableExtensions) {
             auto extension = extensionRegistry_.findExtension(funcName);
             if (extension) {
-                // Берем только основное имя функции
                 std::string primaryName = extension->getPrimaryName();
                 
-                // Регистрируем только если еще не зарегистрировано
                 if (uniqueFunctionNames.find(primaryName) == uniqueFunctionNames.end()) {
                     uniqueFunctionNames.insert(primaryName);
                     
-                    // Создаем обертку для функции плагина
-                    auto wrapper = std::make_shared<ExtensionOperationWrapper>(extension, primaryName);
-                    // Сохраняем обертку и регистрируем в фабрике
-                    extensionWrappers_.push_back(wrapper);
-                    operationFactory_.registerOperation(primaryName, wrapper.get());
+                    try {
+                        auto wrapper = std::make_shared<ExtensionOperationWrapper>(extension, primaryName);
+                        extensionWrappers_.push_back(wrapper);
+                        operationFactory_.registerOperation(primaryName, wrapper.get());
+                        successfullyRegistered++;
+                    } catch (const std::exception& e) {
+                        std::cerr << "Failed to register plugin operation '" << primaryName 
+                                  << "': " << e.what() << std::endl;
+                    }
                 }
             }
         }
@@ -47,11 +49,12 @@ void Calculator::initialize() {
         std::cout << "The calculator is initialized. " 
                   << "Operations: " << getAvailableOperations().size() 
                   << " (built-in: " << builtinCountBefore
-                  << ", plugins: " << uniqueFunctionNames.size() << ")" << std::endl;
+                  << ", plugins: " << successfullyRegistered << ")" << std::endl;
                   
     } catch (const std::exception& e) {
         std::cerr << "Calculator initialization error: " << e.what() << std::endl;
-        throw;
+        parser_ = std::make_unique<ExpressionParser>(operationFactory_);
+        std::cout << "Continuing with basic operations only." << std::endl;
     }
 }
 
