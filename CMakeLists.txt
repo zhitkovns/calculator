@@ -114,6 +114,8 @@ if(BUILD_TESTS)
         tests/unit/TestAST.cpp
         tests/unit/TestBuiltinOperations.cpp
         tests/integration/TestFullExpressions.cpp
+        tests/integration/TestPlugins.cpp
+        tests/unit/TestErrorHandling.cpp
     )
     
     # Исполняемый файл тестов

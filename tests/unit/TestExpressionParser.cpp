@@ -52,3 +52,25 @@ TEST_F(ExpressionParserTest, InvalidExpressionThrows) {
     EXPECT_THROW(parser->parse("(2 + 3"), std::runtime_error);
     EXPECT_THROW(parser->parse("2 + 3)"), std::runtime_error);
 }
+
+TEST_F(ExpressionParserTest, FloatingPointNumbers) {
+    auto ast = parser->parse("2.5 + 3.7");
+    EXPECT_DOUBLE_EQ(ast->evaluate(), 6.2);
+}
+
+TEST_F(ExpressionParserTest, NegativeNumbers) {
+    auto ast = parser->parse("5 - 7"); // 5 - 7 = -2
+    EXPECT_DOUBLE_EQ(ast->evaluate(), -2.0);
+    auto ast2 = parser->parse("(5 - 10) * 2"); // (-5) * 2 = -10
+    EXPECT_DOUBLE_EQ(ast2->evaluate(), -10.0);
+}
+
+TEST_F(ExpressionParserTest, MultipleSpaces) {
+    auto ast = parser->parse("  2   +   3   *   4  ");
+    EXPECT_DOUBLE_EQ(ast->evaluate(), 14.0);
+}
+
+TEST_F(ExpressionParserTest, DeeplyNestedParentheses) {
+    auto ast = parser->parse("((((2 + 3))))");
+    EXPECT_DOUBLE_EQ(ast->evaluate(), 5.0);
+}

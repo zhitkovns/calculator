@@ -27,3 +27,8 @@ TEST_F(IntegrationTest, OperatorPrecedenceWithMixedOperations) {
     EXPECT_DOUBLE_EQ(result1, result2); // Должны быть равны
     EXPECT_DOUBLE_EQ(result1, 11.0); // 2 + 12 - 3 = 11
 }
+
+TEST_F(IntegrationTest, ComplexExpressionWithAllOperations) {
+    double result = calculator->calculate("(2.5 + 3.5) * (10 - 4) / 3 + 1");
+    EXPECT_DOUBLE_EQ(result, 13.0); // 6 * 6 / 3 + 1 = 13
+}
