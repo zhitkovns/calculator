@@ -13,3 +13,10 @@ set_target_properties(func_sin PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PLUGINS_OUTPUT_DIR}
     OUTPUT_NAME "_s"
 )
+
+# Logarithm extension
+add_library(func_ln SHARED LogarithmExtension/LogarithmExtension.cpp)
+set_target_properties(func_ln PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${PLUGINS_OUTPUT_DIR}
+    OUTPUT_NAME "_ln"
+)
