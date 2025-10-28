@@ -3,9 +3,9 @@
 Calculator/                   // Корень проекта
 ├── calc.exe                  // Исполняемый файл (создается после сборки)
 ├── plugins/                  // Папка с плагинами
-│   ├── funcsin.dll
-│   ├── funccos.dll           
-│   ├── funcln.dll
+│   ├── lib_cos.dll
+│   ├── lib_sin.dll           
+│   ├── lib_ln.dll
 │   └── ...                   // Любые другие .dll
 └── src/                      // Исходный код
     ├── core/
