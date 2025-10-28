@@ -56,23 +56,22 @@ void Calculator::initialize() {
 }
 
 void Calculator::registerBuiltinOperations() {
+    // Регистрируем только базовые встроенные операции в фабрике
     static AddOperation addOp;
     static SubtractOperation subOp;
     static MultiplyOperation mulOp;
     static DivideOperation divOp;
-    static PowerOperation powOp;
     static LeftParenthesis leftParen;
     static RightParenthesis rightParen;
-    static UnaryMinusOperation unaryMinus;
     
     operationFactory_.registerOperation("+", &addOp);
-    operationFactory_.registerOperation("-", &subOp);
+    operationFactory_.registerOperation("-", &subOp);  // Только бинарный минус
     operationFactory_.registerOperation("*", &mulOp);
     operationFactory_.registerOperation("/", &divOp);
-    operationFactory_.registerOperation("^", &powOp);
     operationFactory_.registerOperation("(", &leftParen);
     operationFactory_.registerOperation(")", &rightParen);
-    operationFactory_.registerOperation("unary_minus", &unaryMinus);
+    
+    // УДАЛЕНО: регистрация унарного минуса и степени
 }
 
 double Calculator::calculate(const std::string& expression) {

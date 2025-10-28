@@ -47,12 +47,6 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
         double angle_radians = (angle_degrees * MATH_PI) / 180.0;
         double result = std::sin(angle_radians);
         
-        // Optional: log the computation
-        if (sin_host_services_ && sin_host_services_->write_log) {
-            std::string log_msg = "Sin computed: sin(" + std::to_string(angle_degrees) + "°) = " + std::to_string(result);
-            sin_host_services_->write_log(log_msg.c_str(), log_msg.size());
-        }
-        
         return result;
     };
     

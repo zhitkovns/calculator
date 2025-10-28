@@ -24,11 +24,22 @@ std::string ExtensionOperationWrapper::getName() const {
 }
 
 OperationType ExtensionOperationWrapper::getType() const {
-    return OperationType::FUNCTION;
+    OperationCategory category = extension_->getCategory();
+    
+    // Правильное преобразование OperationCategory → OperationType
+    switch (category) {
+        case OperationCategory::TWO_OPERAND:
+            return OperationType::BINARY;
+        case OperationCategory::SINGLE_OPERAND:
+            return OperationType::UNARY;
+        case OperationCategory::MATH_FUNCTION:
+        default:
+            return OperationType::FUNCTION;
+    }
 }
 
 int ExtensionOperationWrapper::getPriority() const {
-    return 4; // Высокий приоритет для функций
+    return static_cast<int>(extension_->getPriority());
 }
 
 size_t ExtensionOperationWrapper::getArgumentCount() const {
@@ -36,4 +47,8 @@ size_t ExtensionOperationWrapper::getArgumentCount() const {
     
     auto range = extension_->getParameterRange();
     return range.first; // Минимальное количество параметров
+}
+
+bool ExtensionOperationWrapper::isRightAssociative() const {
+    return extension_->isRightAssociative();
 }

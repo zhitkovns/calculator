@@ -73,11 +73,6 @@ extern "C" __declspec(dllexport) int initialize_extension(const HostServices* se
     cos_host_services_ = const_cast<HostServices*>(services);
     cos_extension_active = true;
 
-    if (cos_host_services_->write_log) {
-        std::string init_msg = "Cos mathematical extension initialized successfully";
-        cos_host_services_->write_log(init_msg.c_str(), init_msg.size());
-    }
-
     return 0;
 }
 

@@ -119,6 +119,8 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
     
     std::cout << "Scanning plugins directory: " << directory << std::endl;
     
+    std::vector<std::string> loadedPlugins;
+    
     for (const auto& entry : std::filesystem::directory_iterator(directory, ec)) {
         if (ec) {
             continue;
@@ -145,11 +147,25 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
         // Try to load the plugin and get function name from metadata
         std::string error_msg;
         if (registerExtension(path_string, &error_msg)) {
-            std::cout << "✓ Loaded plugin: " << file_path.filename().string() << std::endl;
+            loadedPlugins.push_back(file_path.filename().string());
         } else {
             std::cerr << "✗ Failed to load plugin " << file_path.filename().string() 
                       << ": " << error_msg << std::endl;
         }
+    }
+    
+    // Print loaded plugins as comma-separated list
+    if (!loadedPlugins.empty()) {
+        std::cout << "Loaded plugins: ";
+        for (size_t i = 0; i < loadedPlugins.size(); ++i) {
+            std::cout << loadedPlugins[i];
+            if (i < loadedPlugins.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << std::endl;
+    } else {
+        std::cout << "No plugins found in directory" << std::endl;
     }
 }
 
@@ -263,19 +279,7 @@ void ExtensionRegistry::removeBackupFiles() {
 }
 
 void ExtensionRegistry::setupHostServices() {
-    host_services_.write_log = &ExtensionRegistry::hostLogMessage;
-    host_services_.write_error = &ExtensionRegistry::hostErrorReport;
-}
-
-void ExtensionRegistry::hostLogMessage(const char* message, size_t message_size) {
-    if (message_size > 0) {
-        // Could integrate with logger later
-        std::cout << "[EXTENSION] " << std::string(message, message_size) << std::endl;
-    }
-}
-
-void ExtensionRegistry::hostErrorReport(const char* message, size_t message_size) {
-    if (message_size > 0) {
-        std::cerr << "[EXTENSION ERROR] " << std::string(message, message_size) << std::endl;
-    }
+    // Устанавливаем пустые функции, чтобы плагины не крашились
+    host_services_.write_log = [](const char*, size_t) {};
+    host_services_.write_error = [](const char*, size_t) {};
 }

@@ -57,6 +57,8 @@ public:
     const std::string& getLibraryPath() const { return library_path_; }
     std::filesystem::file_time_type getModTime() const { return modification_time_; }  // Возвращаем родной тип
 
+    bool isRightAssociative() const;
+
 private:
     void releaseResources();
 };

@@ -13,13 +13,13 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
     static const char* extra_names[] = {"negate", "negative"};
     static size_t extra_name_sizes[] = {6, 8};
     
-    // Configure extension metadata
+    // Configure extension metadata - ИЗМЕНИЛИ ИМЯ НА "unary_minus"
     unary_minus_info.abi_version = EXTENSION_ABI_VERSION;
-    unary_minus_info.operation_name = "-";
-    unary_minus_info.name_length = 1;
+    unary_minus_info.operation_name = "unary_minus";
+    unary_minus_info.name_length = 11;              
     unary_minus_info.min_parameters = 1;
     unary_minus_info.max_parameters = 1;
-    unary_minus_info.priority_level = 4; // High priority for unary operations
+    unary_minus_info.priority_level = 4;
     unary_minus_info.is_operation = true;
     unary_minus_info.right_to_left = false;
     unary_minus_info.additional_names = extra_names;
@@ -40,14 +40,6 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
         }
         
         double result = -parameters[0];
-        
-        // Log the computation
-        if (unary_minus_host_ && unary_minus_host_->write_log) {
-            std::string log_msg = "Unary minus computed: -(" + 
-                                 std::to_string(parameters[0]) + ") = " + 
-                                 std::to_string(result);
-            unary_minus_host_->write_log(log_msg.c_str(), log_msg.size());
-        }
         
         return result;
     };

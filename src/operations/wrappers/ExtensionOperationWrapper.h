@@ -16,4 +16,5 @@ public:
     OperationType getType() const override;
     int getPriority() const override;
     size_t getArgumentCount() const override;
+    bool isRightAssociative() const override;
 };

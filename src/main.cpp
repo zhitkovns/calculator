@@ -6,7 +6,7 @@
 // Функция для вывода справки
 void printHelp() {
     std::cout << "=== Calculator ===" << std::endl;
-    std::cout << "Supported operations: +, -, *, /, ^, ()" << std::endl;
+    std::cout << "Supported operations: +, -, *, /, ()" << std::endl;
     std::cout << "Plugins are loaded automatically from the folder ./plugins/" << std::endl;
     std::cout << "Commands:" << std::endl;
     std::cout << "  /help - show this help" << std::endl;

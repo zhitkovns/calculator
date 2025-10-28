@@ -48,7 +48,4 @@ private:
     void removeBackupFiles();
     void setupHostServices();
     
-    // Host service implementations
-    static void hostLogMessage(const char* message, size_t message_size);
-    static void hostErrorReport(const char* message, size_t message_size);
 };

@@ -19,9 +19,9 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
     power_info.name_length = 1;
     power_info.min_parameters = 2;
     power_info.max_parameters = 2;
-    power_info.priority_level = 3; // High priority (but lower than unary)
+    power_info.priority_level = 3;
     power_info.is_operation = true;
-    power_info.right_to_left = true; // Right-associative: 2^3^2 = 2^(3^2)
+    power_info.right_to_left = false;
     power_info.additional_names = extra_names;
     power_info.additional_name_lengths = extra_name_sizes;
     power_info.additional_name_count = 2;
@@ -99,15 +99,6 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
                     "Unknown exception in power computation");
             }
             return 0.0;
-        }
-        
-        // Log successful computation
-        if (power_host_ && power_host_->write_log) {
-            std::string log_msg = "Power computed: " + 
-                                 std::to_string(base) + " ^ " + 
-                                 std::to_string(exponent) + " = " + 
-                                 std::to_string(result);
-            power_host_->write_log(log_msg.c_str(), log_msg.size());
         }
         
         return result;

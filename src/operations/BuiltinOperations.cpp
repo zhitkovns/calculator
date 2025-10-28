@@ -24,15 +24,8 @@ double DivideOperation::execute(const std::vector<double>& args) {
     return args[0] / args[1];
 }
 
-double PowerOperation::execute(const std::vector<double>& args) {
-    if (args.size() != 2) throw std::invalid_argument("Power requires 2 arguments");
-    return std::pow(args[0], args[1]);
-}
-
-double UnaryMinusOperation::execute(const std::vector<double>& args) {
-    if (args.size() != 1) throw std::invalid_argument("Unary minus requires 1 argument");
-    return -args[0];
-}
+// УДАЛЕНО: PowerOperation::execute - теперь плагин
+// УДАЛЕНО: UnaryMinusOperation::execute - теперь плагин
 
 // Скобки не выполняют вычисления, их обрабатывает парсер
 double LeftParenthesis::execute(const std::vector<double>& args) {

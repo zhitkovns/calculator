@@ -2,6 +2,7 @@
 #include "HostIntegration.h"
 #include <algorithm>
 #include <stdexcept>
+#include <iostream>
 
 ExtensionUnit::~ExtensionUnit() {
     releaseResources();
@@ -93,12 +94,12 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
         if (meta_data_->additional_name_count > 0 && meta_data_->additional_names && meta_data_->additional_name_lengths) {
             for (size_t i = 0; i < meta_data_->additional_name_count; ++i) {
                 if (meta_data_->additional_names[i] && meta_data_->additional_name_lengths[i] > 0) {
-                operation_names_.emplace_back(meta_data_->additional_names[i], meta_data_->additional_name_lengths[i]);
+                    operation_names_.emplace_back(meta_data_->additional_names[i], meta_data_->additional_name_lengths[i]);
                 }
             }
         }
         
-        // Record file modification time using native filesystem type
+        // Record file modification time
         std::error_code ec;
         modification_time_ = std::filesystem::last_write_time(library_path, ec);
         if (ec) {
@@ -184,14 +185,19 @@ bool ExtensionUnit::hasRightAssociativity() const {
 }
 
 OperationCategory ExtensionUnit::getCategory() const {
-    if (!meta_data_) return OperationCategory::MATH_FUNCTION;
+    if (!meta_data_) {
+        return OperationCategory::MATH_FUNCTION;
+    }
     
     if (meta_data_->is_operation) {
         if (meta_data_->min_parameters == 1 && meta_data_->max_parameters == 1) {
             return OperationCategory::SINGLE_OPERAND;
+        } else if (meta_data_->min_parameters == 2 && meta_data_->max_parameters == 2) {
+            return OperationCategory::TWO_OPERAND;
         }
         return OperationCategory::TWO_OPERAND;
     }
+    
     return OperationCategory::MATH_FUNCTION;
 }
 
@@ -244,4 +250,8 @@ void ExtensionUnit::releaseResources() {
     operation_names_.clear();
     library_path_.clear();
     is_active_ = false;
+}
+
+bool ExtensionUnit::isRightAssociative() const {
+    return meta_data_ && meta_data_->right_to_left;
 }

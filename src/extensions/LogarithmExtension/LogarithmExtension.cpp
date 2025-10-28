@@ -98,14 +98,6 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
             return 0.0;
         }
         
-        // Log successful computation
-        if (logarithm_host_services_ && logarithm_host_services_->write_log) {
-            std::string log_msg = "Natural logarithm computed: ln(" + 
-                                 std::to_string(input_value) + ") = " + 
-                                 std::to_string(result);
-            logarithm_host_services_->write_log(log_msg.c_str(), log_msg.size());
-        }
-        
         return result;
     };
     
