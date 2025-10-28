@@ -25,8 +25,6 @@ std::string ExtensionOperationWrapper::getName() const {
 
 OperationType ExtensionOperationWrapper::getType() const {
     OperationCategory category = extension_->getCategory();
-    
-    // Правильное преобразование OperationCategory → OperationType
     switch (category) {
         case OperationCategory::TWO_OPERAND:
             return OperationType::BINARY;
@@ -46,7 +44,7 @@ size_t ExtensionOperationWrapper::getArgumentCount() const {
     if (!extension_) return 0;
     
     auto range = extension_->getParameterRange();
-    return range.first; // Минимальное количество параметров
+    return range.first;
 }
 
 bool ExtensionOperationWrapper::isRightAssociative() const {

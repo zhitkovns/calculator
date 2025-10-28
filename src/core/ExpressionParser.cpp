@@ -4,7 +4,6 @@
 #include <sstream>
 #include <cctype>
 #include <stdexcept>
-#include <iostream>
 
 ExpressionParser::ExpressionParser(const OperationFactory& factory) 
     : operationFactory_(factory) {

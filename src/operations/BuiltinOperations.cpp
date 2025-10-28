@@ -1,8 +1,6 @@
 #include "BuiltinOperations.h"
 #include <stdexcept>
 
-// Реализации встроенных операций
-
 double AddOperation::execute(const std::vector<double>& args) {
     if (args.size() != 2) throw std::invalid_argument("Add requires 2 arguments");
     return args[0] + args[1];
@@ -23,9 +21,6 @@ double DivideOperation::execute(const std::vector<double>& args) {
     if (args[1] == 0) throw std::runtime_error("Division by zero");
     return args[0] / args[1];
 }
-
-// УДАЛЕНО: PowerOperation::execute - теперь плагин
-// УДАЛЕНО: UnaryMinusOperation::execute - теперь плагин
 
 // Скобки не выполняют вычисления, их обрабатывает парсер
 double LeftParenthesis::execute(const std::vector<double>& args) {

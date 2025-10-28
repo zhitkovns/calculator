@@ -149,7 +149,7 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
         if (registerExtension(path_string, &error_msg)) {
             loadedPlugins.push_back(file_path.filename().string());
         } else {
-            std::cerr << "✗ Failed to load plugin " << file_path.filename().string() 
+            std::cerr << "Failed to load plugin " << file_path.filename().string() 
                       << ": " << error_msg << std::endl;
         }
     }

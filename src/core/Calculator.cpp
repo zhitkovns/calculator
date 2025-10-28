@@ -13,7 +13,7 @@ void Calculator::initialize() {
         // Загружаем плагины из папки ./plugins/
         extensionRegistry_.scanExtensionsDirectory("./plugins/");
         
-        // Сохраним количество built-in операций ДО регистрации плагинов
+        // Сохраним количество built-in операций до регистрации плагинов
         size_t builtinCountBefore = operationFactory_.getAvailableOperations().size();
         
         // Регистрируем функции из плагинов в фабрике операций
@@ -65,13 +65,12 @@ void Calculator::registerBuiltinOperations() {
     static RightParenthesis rightParen;
     
     operationFactory_.registerOperation("+", &addOp);
-    operationFactory_.registerOperation("-", &subOp);  // Только бинарный минус
+    operationFactory_.registerOperation("-", &subOp);
     operationFactory_.registerOperation("*", &mulOp);
     operationFactory_.registerOperation("/", &divOp);
     operationFactory_.registerOperation("(", &leftParen);
     operationFactory_.registerOperation(")", &rightParen);
-    
-    // УДАЛЕНО: регистрация унарного минуса и степени
+
 }
 
 double Calculator::calculate(const std::string& expression) {

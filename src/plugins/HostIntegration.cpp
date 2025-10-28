@@ -69,7 +69,6 @@ bool validateExtensionMeta(const ExtensionMeta* meta, std::string* error_output)
 }
 
 std::string getSystemError() {
-#ifdef _WIN32
     DWORD error_code = GetLastError();
     if (error_code == 0) return {};
     
@@ -86,10 +85,6 @@ std::string getSystemError() {
     }
     
     return result;
-#else
-    const char* error = dlerror();
-    return error ? std::string(error) : std::string();
-#endif
 }
 
 } // namespace HostIntegration

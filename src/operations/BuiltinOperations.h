@@ -23,7 +23,6 @@ public:
 };
 
 // Конкретные встроенные операции - ТОЛЬКО БАЗОВЫЕ
-
 class AddOperation : public BaseOperation {
 public:
     AddOperation() : BaseOperation("+", OperationType::BINARY, 1, 2, false) {}

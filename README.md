@@ -38,8 +38,6 @@ Calculator/                   // Корень проекта
     │   │   └── CosExtension.cpp
     │   └── ...
     ├── plugins/
-    │   ├── PluginManager.h
-    │   ├── PluginManager.cpp
     │   ├── ExtensionAPI.h
     │   ├── ExtensionRegistry.h
     │   ├── ExtensionRegistry.cpp

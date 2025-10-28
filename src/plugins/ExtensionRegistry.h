@@ -18,7 +18,6 @@ public:
     ExtensionRegistry();
     ~ExtensionRegistry();
     
-    // No copying allowed
     ExtensionRegistry(const ExtensionRegistry&) = delete;
     ExtensionRegistry& operator=(const ExtensionRegistry&) = delete;
 

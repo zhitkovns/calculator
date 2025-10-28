@@ -8,7 +8,6 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif()
 
-# ИЗМЕНЕНИЕ: calc.exe в папке проекта (не в build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Создаем папку plugins в папке проекта
