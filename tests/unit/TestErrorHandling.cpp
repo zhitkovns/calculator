@@ -1,27 +1,40 @@
-#include <gtest/gtest.h>
+#include "../test_framework.h"
 #include "../../src/core/Calculator.h"
 
-TEST(ErrorHandlingTest, InvalidCharacters) {
-    Calculator calculator;
-    calculator.initialize();
+void runErrorHandlingTests(TestFramework& tf) {
+    std::cout << "\n=== ErrorHandling Tests ===" << std::endl;
     
-    EXPECT_THROW(calculator.calculate("2 @ 3"), std::runtime_error);
-    EXPECT_THROW(calculator.calculate("abc + 3"), std::runtime_error);
-}
-
-TEST(ErrorHandlingTest, UnbalancedParentheses) {
-    Calculator calculator;
-    calculator.initialize();
+    std::cout << "TEST: Invalid characters ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertThrows([&]() { calculator.calculate("2 @ 3"); });
+        tf.assertThrows([&]() { calculator.calculate("abc + 3"); });
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    EXPECT_THROW(calculator.calculate("(2 + 3"), std::runtime_error);
-    EXPECT_THROW(calculator.calculate("2 + 3)"), std::runtime_error);
-    EXPECT_THROW(calculator.calculate("((2 + 3)"), std::runtime_error);
-}
-
-TEST(ErrorHandlingTest, InvalidFunctionCalls) {
-    Calculator calculator;
-    calculator.initialize();
+    std::cout << "TEST: Unbalanced parentheses ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertThrows([&]() { calculator.calculate("(2 + 3"); });
+        tf.assertThrows([&]() { calculator.calculate("2 + 3)"); });
+        tf.assertThrows([&]() { calculator.calculate("((2 + 3)"); });
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    EXPECT_THROW(calculator.calculate("sin()"), std::runtime_error);
-    EXPECT_THROW(calculator.calculate("sin(1, 2)"), std::runtime_error);
+    std::cout << "TEST: Invalid function calls ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertThrows([&]() { calculator.calculate("sin()"); });
+        tf.assertThrows([&]() { calculator.calculate("sin(1, 2)"); });
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
 }

@@ -71,16 +71,12 @@ Calculator/
 │   │   ├── TestCalculator.cpp
 │   │   ├── TestExpressionParser.cpp
 │   │   ├── TestAST.cpp
-│   │   ├── TestExtensionRegistry.cpp
 │   │   ├── TestBuiltinOperations.cpp
 │   │   └── TestErrorHandling.cpp
 │   ├── integration/                // Интеграционные тесты
 │   │   ├── TestFullExpressions.cpp
 │   │   └── TestPlugins.cpp
-│   ├── mocks/                      // Моки для тестов
-│   │   └── MockOperation.h
-│   ├── utils/                      // Утилиты для тестов
-│   │   └── TestHelpers.h
+│   ├── test_framework.h            // Framework для тестов
 │   └── main.cpp                    // Главный файл тестов
 ├── CMakeLists.txt                  // Главный CMakeLists
 └── README.md
@@ -119,51 +115,51 @@ cmake --build build
 ## Unit-тесты
 
 ### AST тесты (TestAST.cpp)
-- NumberNodeEvaluation - вычисление числового узла
-- BinaryNodeEvaluation - вычисление бинарных операций
-- UnaryNodeEvaluation - вычисление унарных операций
-- FunctionNodeEvaluation - вычисление функций
+- **NumberNodeEvaluation** - вычисление числового узла с различными значениями
+- **BinaryNodeEvaluation** - вычисление бинарных операций (сложение, вычитание, умножение, деление)
+- **UnaryNodeEvaluation** - вычисление унарных операций (унарный минус)
+- **FunctionNodeEvaluation** - вычисление функций с различным количеством аргументов
 
 ### BuiltinOperations тесты (TestBuiltinOperations.cpp)
-- AddOperation - сложение
-- SubtractOperation - вычитание
-- MultiplyOperation - умножение
-- DivideOperation - деление
-- DivisionByZero - деление на ноль
+- **AddOperation** - операция сложения с положительными и отрицательными числами
+- **SubtractOperation** - операция вычитания с различными комбинациями чисел
+- **MultiplyOperation** - операция умножения, включая умножение на ноль
+- **DivideOperation** - операция деления с корректными аргументами
+- **DivisionByZero** - обработка деления на ноль с выбрасыванием исключения
 
 ### ExpressionParser тесты (TestExpressionParser.cpp)
-- SimpleAddition - парсинг сложения
-- OperatorPrecedence - приоритет операторов
-- Parentheses - работа со скобками
-- ComplexExpression - сложные выражения
-- InvalidExpressionThrows - обработка ошибок парсера
-- FloatingPointNumbers - числа с плавающей точкой
-- NegativeNumbers - отрицательные результаты
-- MultipleSpaces - выражения с пробелами
-- DeeplyNestedParentheses - вложенные скобки
+- **SimpleAddition** - парсинг простых выражений сложения
+- **OperatorPrecedence** - проверка приоритета операторов (умножение перед сложением)
+- **Parentheses** - корректная обработка скобок и изменение приоритета операций
+- **ComplexExpression** - парсинг сложных математических выражений
+- **InvalidExpressionThrows** - обработка синтаксически некорректных выражений
+- **FloatingPointNumbers** - корректный парсинг чисел с плавающей точкой
+- **NegativeNumbers** - работа с отрицательными числами и результатами
+- **MultipleSpaces** - игнорирование лишних пробелов в выражениях
+- **DeeplyNestedParentheses** - обработка выражений с глубоко вложенными скобками
 
 ### Calculator тесты (TestCalculator.cpp)
-- CreationAndInitialization - создание калькулятора
-- BasicOperations - базовые операции
-- ComplexExpressions - сложные выражения
-- AvailableOperations - список операций
-- DivisionByZero - обработка деления на ноль
-- InvalidExpression - обработка некорректных выражений
+- **CreationAndInitialization** - создание калькулятора и инициализация операций
+- **BasicOperations** - выполнение базовых арифметических операций
+- **ComplexExpressions** - вычисление сложных математических выражений
+- **AvailableOperations** - проверка списка доступных встроенных операций
+- **DivisionByZero** - корректная обработка деления на ноль в калькуляторе
+- **InvalidExpression** - обработка некорректных выражений с выводом ошибок
 
 ### ErrorHandling тесты (TestErrorHandling.cpp)
-- InvalidCharacters - недопустимые символы
-- UnbalancedParentheses - несбалансированные скобки
-- InvalidFunctionCalls - некорректные вызовы функций
+- **InvalidCharacters** - обработка выражений с недопустимыми символами
+- **UnbalancedParentheses** - обнаружение несбалансированных скобок
+- **InvalidFunctionCalls** - обработка некорректных вызовов функций (неправильное количество аргументов)
 
 ## Интеграционные тесты
 
 ### FullExpressions тесты (TestFullExpressions.cpp)
-- ComplexMathematicalExpression - сложные выражения
-- NestedParentheses - вложенные скобки
-- OperatorPrecedenceWithMixedOperations - приоритеты операций
-- ComplexExpressionWithAllOperations - все типы операций
+- **ComplexMathematicalExpression** - вычисление сложных математических выражений со смешанными операциями
+- **NestedParentheses** - работа с выражениями, содержащими вложенные скобки различной глубины
+- **OperatorPrecedenceWithMixedOperations** - проверка приоритета операций в сложных выражениях
+- **ComplexExpressionWithAllOperations** - выражения, использующие все типы доступных операций
 
 ### Plugin тесты (TestPlugins.cpp)
-- PluginOperationsAvailable - доступность плагинов
-- PluginOperationsCalculation - вычисления через плагины
-- ComplexExpressionWithPlugins - выражения с плагинами
+- **PluginOperationsAvailable** - проверка доступности операций из загруженных плагинов
+- **PluginOperationsCalculation** - тестирование корректности вычислений через плагинные операции и обработки ошибок
+- **ComplexExpressionWithPlugins** - вычисление сложных выражений, комбинирующих встроенные и плагинные операции

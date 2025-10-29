@@ -1,53 +1,74 @@
-#include <gtest/gtest.h>
+#include "../test_framework.h"
 #include "../../src/core/Calculator.h"
 
-TEST(CalculatorTest, CreationAndInitialization) {
-    Calculator calculator;
-    EXPECT_NO_THROW(calculator.initialize());
-}
-
-TEST(CalculatorTest, BasicOperations) {
-    Calculator calculator;
-    calculator.initialize();
+void runCalculatorTests(TestFramework& tf) {
+    std::cout << "\n=== Calculator Tests ===" << std::endl;
     
-    EXPECT_DOUBLE_EQ(calculator.calculate("2 + 3"), 5.0);
-    EXPECT_DOUBLE_EQ(calculator.calculate("10 - 4"), 6.0);
-    EXPECT_DOUBLE_EQ(calculator.calculate("3 * 4"), 12.0);
-    EXPECT_DOUBLE_EQ(calculator.calculate("15 / 3"), 5.0);
-}
-
-TEST(CalculatorTest, ComplexExpressions) {
-    Calculator calculator;
-    calculator.initialize();
+    std::cout << "TEST: Creation and initialization ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    EXPECT_DOUBLE_EQ(calculator.calculate("2 + 3 * 4"), 14.0);
-    EXPECT_DOUBLE_EQ(calculator.calculate("(2 + 3) * 4"), 20.0);
-}
-
-TEST(CalculatorTest, AvailableOperations) {
-    Calculator calculator;
-    calculator.initialize();
+    std::cout << "TEST: Basic operations ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertDoubleEqual(calculator.calculate("2 + 3"), 5.0);
+        tf.assertDoubleEqual(calculator.calculate("10 - 4"), 6.0);
+        tf.assertDoubleEqual(calculator.calculate("3 * 4"), 12.0);
+        tf.assertDoubleEqual(calculator.calculate("15 / 3"), 5.0);
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    auto operations = calculator.getAvailableOperations();
-    // Должны быть базовые операции
-    EXPECT_TRUE(calculator.hasOperation("+"));
-    EXPECT_TRUE(calculator.hasOperation("-"));
-    EXPECT_TRUE(calculator.hasOperation("*"));
-    EXPECT_TRUE(calculator.hasOperation("/"));
-}
-
-TEST(CalculatorTest, DivisionByZero) {
-    Calculator calculator;
-    calculator.initialize();
+    std::cout << "TEST: Complex expressions ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertDoubleEqual(calculator.calculate("2 + 3 * 4"), 14.0);
+        tf.assertDoubleEqual(calculator.calculate("(2 + 3) * 4"), 20.0);
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    EXPECT_THROW(calculator.calculate("10 / 0"), std::runtime_error);
-}
-
-TEST(CalculatorTest, InvalidExpression) {
-    Calculator calculator;
-    calculator.initialize();
+    std::cout << "TEST: Available operations ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        auto operations = calculator.getAvailableOperations();
+        tf.assertTrue(calculator.hasOperation("+"));
+        tf.assertTrue(calculator.hasOperation("-"));
+        tf.assertTrue(calculator.hasOperation("*"));
+        tf.assertTrue(calculator.hasOperation("/"));
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    EXPECT_THROW(calculator.calculate("2 + + 3"), std::runtime_error);
-    EXPECT_THROW(calculator.calculate(""), std::invalid_argument);
-    EXPECT_THROW(calculator.calculate("sin()"), std::runtime_error);
+    std::cout << "TEST: Division by zero ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertThrows([&]() { calculator.calculate("10 / 0"); });
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
+    
+    std::cout << "TEST: Invalid expressions ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        tf.assertThrows([&]() { calculator.calculate("2 + + 3"); });
+        tf.assertThrows([&]() { calculator.calculate(""); });
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
 }

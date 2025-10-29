@@ -1,35 +1,54 @@
-#include <gtest/gtest.h>
+#include "../test_framework.h"
 #include "../../src/core/Calculator.h"
-#include <filesystem>
+#include <cmath>
 
-class PluginTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        calculator = std::make_unique<Calculator>();
-        calculator->initialize();
+void runPluginTests(TestFramework& tf) {
+    std::cout << "\n=== Plugin Tests ===" << std::endl;
+    
+    std::cout << "TEST: Plugin operations available ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        auto operations = calculator.getAvailableOperations();
+        tf.assertTrue(calculator.hasOperation("sin"));
+        tf.assertTrue(calculator.hasOperation("cos"));
+        tf.assertTrue(calculator.hasOperation("ln"));
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
     }
     
-    std::unique_ptr<Calculator> calculator;
-};
-
-TEST_F(PluginTest, PluginOperationsAvailable) {
-    auto operations = calculator->getAvailableOperations();
+    std::cout << "TEST: Plugin operations calculation ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        
+        tf.assertDoubleEqual(calculator.calculate("sin(0)"), 0.0);
+        tf.assertDoubleEqual(calculator.calculate("cos(0)"), 1.0);
+        tf.assertDoubleEqual(calculator.calculate("ln(1)"), 0.0);
+        
+        tf.assertThrows([&]() { calculator.calculate("ln(-1)"); });  // ln от отрицательного числа
+        tf.assertThrows([&]() { calculator.calculate("sin()"); });   // нет аргументов
+        tf.assertThrows([&]() { calculator.calculate("cos(1, 2)"); }); // слишком много аргументов
+        
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
     
-    // Проверяем что плагинные операции доступны
-    EXPECT_TRUE(calculator->hasOperation("sin"));
-    EXPECT_TRUE(calculator->hasOperation("cos"));
-    EXPECT_TRUE(calculator->hasOperation("ln"));
-}
-
-TEST_F(PluginTest, PluginOperationsCalculation) {
-    // Проверяем вычисления через плагины
-    EXPECT_NO_THROW(calculator->calculate("sin(0)"));
-    EXPECT_NO_THROW(calculator->calculate("cos(0)"));
-    EXPECT_NO_THROW(calculator->calculate("ln(1)"));
-}
-
-TEST_F(PluginTest, ComplexExpressionWithPlugins) {
-    // Комбинируем базовые операции и плагины
-    EXPECT_NO_THROW(calculator->calculate("2 + sin(0) * 3"));
-    EXPECT_NO_THROW(calculator->calculate("(cos(0) + 1) * 2"));
+    std::cout << "TEST: Complex expression with plugins ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        
+        tf.assertDoubleEqual(calculator.calculate("2 + sin(0) * 3"), 2.0);
+        tf.assertDoubleEqual(calculator.calculate("(cos(0) + 1) * 2"), 4.0);
+        
+        tf.assertThrows([&]() { calculator.calculate("sin(0) + unknown(5)"); }); // неизвестная функция
+        tf.assertThrows([&]() { calculator.calculate("ln(0)"); }); // ln(0) - математическая ошибка
+        
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
 }

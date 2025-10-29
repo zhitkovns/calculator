@@ -1,34 +1,52 @@
-#include <gtest/gtest.h>
+#include "../test_framework.h"
 #include "../../src/core/Calculator.h"
 
-class IntegrationTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        calculator = std::make_unique<Calculator>();
-        calculator->initialize();
+void runFullExpressionsTests(TestFramework& tf) {
+    std::cout << "\n=== FullExpressions Tests ===" << std::endl;
+    
+    std::cout << "TEST: Complex mathematical expression ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        double result = calculator.calculate("(10 + 2) * 3 - 8 / 2");
+        tf.assertDoubleEqual(result, 32.0);
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
     }
     
-    std::unique_ptr<Calculator> calculator;
-};
-
-TEST_F(IntegrationTest, ComplexMathematicalExpression) {
-    double result = calculator->calculate("(10 + 2) * 3 - 8 / 2");
-    EXPECT_DOUBLE_EQ(result, 32.0); // 12 * 3 - 4 = 32
-}
-
-TEST_F(IntegrationTest, NestedParentheses) {
-    double result = calculator->calculate("((2 + 3) * (4 - 1)) + 10");
-    EXPECT_DOUBLE_EQ(result, 25.0); // (5 * 3) + 10 = 25
-}
-
-TEST_F(IntegrationTest, OperatorPrecedenceWithMixedOperations) {
-    double result1 = calculator->calculate("2 + 3 * 4 - 6 / 2");
-    double result2 = calculator->calculate("2 + (3 * 4) - (6 / 2)");
-    EXPECT_DOUBLE_EQ(result1, result2); // Должны быть равны
-    EXPECT_DOUBLE_EQ(result1, 11.0); // 2 + 12 - 3 = 11
-}
-
-TEST_F(IntegrationTest, ComplexExpressionWithAllOperations) {
-    double result = calculator->calculate("(2.5 + 3.5) * (10 - 4) / 3 + 1");
-    EXPECT_DOUBLE_EQ(result, 13.0); // 6 * 6 / 3 + 1 = 13
+    std::cout << "TEST: Nested parentheses ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        double result = calculator.calculate("((2 + 3) * (4 - 1)) + 10");
+        tf.assertDoubleEqual(result, 25.0);
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
+    
+    std::cout << "TEST: Operator precedence with mixed operations ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        double result1 = calculator.calculate("2 + 3 * 4 - 6 / 2");
+        double result2 = calculator.calculate("2 + (3 * 4) - (6 / 2)");
+        tf.assertDoubleEqual(result1, result2);
+        tf.assertDoubleEqual(result1, 11.0);
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
+    
+    std::cout << "TEST: Complex expression with all operations ... ";
+    try {
+        Calculator calculator;
+        calculator.initialize();
+        double result = calculator.calculate("(2.5 + 3.5) * (10 - 4) / 3 + 1");
+        tf.assertDoubleEqual(result, 13.0);
+        std::cout << "PASS" << std::endl;
+    } catch (...) {
+        std::cout << "FAIL" << std::endl;
+    }
 }

@@ -1,13 +1,20 @@
-#include <gtest/gtest.h>
-#include <iostream>
+#include "test_framework.h"
 
-int main(int argc, char** argv) {
-    std::cout << "Running Calculator tests..." << std::endl;
+int main() {
+    TestFramework tf;
     
-    ::testing::InitGoogleTest(&argc, argv);
+    std::cout << "Running Calculator tests...\n" << std::endl;
     
-    int result = RUN_ALL_TESTS();
+    // Запускаем все тесты
+    runCalculatorTests(tf);
+    runExpressionParserTests(tf);
+    runASTTests(tf);
+    runBuiltinOperationsTests(tf);
+    runErrorHandlingTests(tf);
+    runFullExpressionsTests(tf);
+    runPluginTests(tf);
     
-    std::cout << "Tests completed with result: " << result << std::endl;
-    return result;
+    tf.printSummary();
+    
+    return tf.getTestsFailed() > 0 ? 1 : 0;
 }
