@@ -37,4 +37,5 @@ public:
 
 private:
     void registerBuiltinOperations();
+    double normalizeZero(double value) const;
 };

@@ -42,3 +42,14 @@ bool DynamicLibrary::isLoaded() const {
 const std::string& DynamicLibrary::getFilePath() const {
     return filePath_;
 }
+
+void* DynamicLibrary::getFunctionPointer(const std::string& functionName) {
+    FARPROC proc = GetProcAddress(handle_, functionName.c_str());
+    // Используем union для безопасного преобразования FARPROC в void*
+    union {
+        FARPROC farproc;
+        void* ptr;
+    } converter;
+    converter.farproc = proc;
+    return converter.ptr;
+}

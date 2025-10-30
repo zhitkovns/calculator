@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <unordered_set>
+#include <cmath>
 
 Calculator::Calculator() {
     registerBuiltinOperations();
@@ -86,7 +87,9 @@ double Calculator::calculate(const std::string& expression) {
     }
 
     try {
-        return parser_->parse(expression)->evaluate();
+        double result = parser_->parse(expression)->evaluate();
+        // Нормализуем ноль
+        return normalizeZero(result);
         
     } catch (const std::exception& e) {
         throw std::runtime_error("Calculation error: " + std::string(e.what()));
@@ -112,4 +115,9 @@ std::vector<std::string> Calculator::getAvailableOperations() const {
 
 bool Calculator::hasOperation(const std::string& name) const {
     return operationFactory_.hasOperation(name) || extensionRegistry_.extensionExists(name);
+}
+
+double Calculator::normalizeZero(double value) const {
+    // Преобразуем -0.0 в 0.0, остальные значения оставляем как есть
+    return (value == 0.0) ? 0.0 : value;
 }

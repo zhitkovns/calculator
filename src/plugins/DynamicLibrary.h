@@ -20,11 +20,9 @@ public:
     DynamicLibrary& operator=(DynamicLibrary&& other) noexcept;
 
     // Получение указателя на функцию из DLL
-    void* getFunctionPointer(const std::string& functionName) {
-        return GetProcAddress(handle_, functionName.c_str());
-    }
+    void* getFunctionPointer(const std::string& functionName);
 
-    // Получение функции с проверкой типа через шаблон
+    // Безопасное получение функции с проверкой типа через шаблон
     template<typename FunctionType>
     FunctionType getFunction(const std::string& functionName) {
         void* funcPtr = getFunctionPointer(functionName);
