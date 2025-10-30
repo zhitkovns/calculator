@@ -24,6 +24,7 @@ public:
     Calculator();
     ~Calculator() = default;
 
+    // Запрет копирования для исключения проблем с владением ресурсов
     Calculator(const Calculator&) = delete;
     Calculator& operator=(const Calculator&) = delete;
 

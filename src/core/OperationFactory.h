@@ -11,7 +11,12 @@ private:
 
 public:
     OperationFactory() = default;
+    ~OperationFactory() = default;
     
+    // Запрет копирования для исключения проблем с владением указателей
+    OperationFactory(const OperationFactory&) = delete;
+    OperationFactory& operator=(const OperationFactory&) = delete;
+
     // Регистрация операции
     void registerOperation(const std::string& name, IOperation* operation);
     

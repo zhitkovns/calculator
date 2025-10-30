@@ -18,6 +18,7 @@ public:
     ExtensionRegistry();
     ~ExtensionRegistry();
     
+    // Запрет копирования для исключения проблем с владением плагинов
     ExtensionRegistry(const ExtensionRegistry&) = delete;
     ExtensionRegistry& operator=(const ExtensionRegistry&) = delete;
 

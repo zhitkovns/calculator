@@ -71,11 +71,7 @@ public:
         std::cout << "Failed: " << testsFailed << std::endl;
         std::cout << "Total:  " << (testsPassed + testsFailed) << std::endl;
         
-        if (testsFailed == 0) {
-            std::cout << "ALL TESTS PASSED!" << std::endl;
-        } else {
-            std::cout << "SOME TESTS FAILED!" << std::endl;
-        }
+        std::cout << (testsFailed == 0 ? "ALL TESTS PASSED!" : "SOME TESTS FAILED!") << std::endl;
     }
     
     int getTestsFailed() const { return testsFailed; }
@@ -87,10 +83,7 @@ public:
     virtual ~MockOperation() = default;
     
     virtual double execute(const std::vector<double>& args) override {
-        if (execute_callback) {
-            return execute_callback(args);
-        }
-        return 0.0;
+        return execute_callback ? execute_callback(args) : 0.0;
     }
     
     virtual std::string getName() const override { 
