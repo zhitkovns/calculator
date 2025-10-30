@@ -4,39 +4,39 @@
 #include <string>
 
 static ExtensionMeta logarithm_extension_info;
-static HostServices* logarithm_host_services_ = nullptr;
+static const HostServices* logarithm_host_services_ = nullptr;
 static bool logarithm_extension_active = false;
 
 extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** output_info) {
     
-    // Additional names for the natural logarithm
+    // Дополнительные имена для натурального логарифма
     static char const* extra_names[] = {"natural_log", "logarithm_natural"};
     static size_t extra_name_sizes[] = {11, 16};
     
-    // Configure extension metadata
+    // Настраиваем метаданные расширения
     logarithm_extension_info.abi_version = EXTENSION_ABI_VERSION;
     logarithm_extension_info.operation_name = "ln";
     logarithm_extension_info.name_length = 2;
     logarithm_extension_info.min_parameters = 1;
     logarithm_extension_info.max_parameters = 1;
-    logarithm_extension_info.priority_level = 4; // Highest priority for functions
+    logarithm_extension_info.priority_level = 4; // Высший приоритет для функций
     logarithm_extension_info.is_operation = false;
     logarithm_extension_info.right_to_left = false;
     logarithm_extension_info.additional_names = extra_names;
     logarithm_extension_info.additional_name_lengths = extra_name_sizes;
     logarithm_extension_info.additional_name_count = 2;
     
-    // Set the computation function with proper exception handling
+    // Устанавливаем функцию вычисления с обработкой исключений
     logarithm_extension_info.compute = [](size_t param_count, const double* parameters, int* error_code, 
                                         char* error_text, size_t error_buffer_size) -> double
     {
-        // Reset error code and message
+        // Сбрасываем код ошибки и сообщение
         *error_code = 0;
         if (error_text && error_buffer_size > 0) {
             error_text[0] = '\0';
         }
         
-        // Validate parameter count
+        // Проверяем количество параметров
         if (param_count != 1) {
             *error_code = 1;
             if (error_text && error_buffer_size > 0) {
@@ -48,7 +48,7 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
         
         double input_value = parameters[0];
         
-        // Validate input domain
+        // Проверяем область определения
         if (input_value <= 0.0) {
             *error_code = 2;
             if (error_text && error_buffer_size > 0) {
@@ -68,11 +68,11 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
         
         double result = 0.0;
         
-        // Compute with exception safety
+        // Вычисляем с безопасностью исключений
         try {
             result = std::log(input_value);
             
-            // Check for mathematical errors (shouldn't happen with validated input, but just in case)
+            // Проверяем на математические ошибки
             if (std::isnan(result) || std::isinf(result)) {
                 *error_code = 3;
                 if (error_text && error_buffer_size > 0) {
@@ -108,7 +108,7 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
 extern "C" __declspec(dllexport) int initialize_extension(const HostServices* services, 
                                                          char* error_text,
                                                          size_t error_buffer_size) {
-    // Reset error message
+    // Сбрасываем сообщение об ошибке
     if (error_text && error_buffer_size > 0) {
         error_text[0] = '\0';
     }
@@ -128,7 +128,7 @@ extern "C" __declspec(dllexport) int initialize_extension(const HostServices* se
     }
 
     try {
-        logarithm_host_services_ = const_cast<HostServices*>(services);
+        logarithm_host_services_ = services;
         logarithm_extension_active = true;
 
         if (logarithm_host_services_->write_log) {
@@ -160,7 +160,7 @@ extern "C" __declspec(dllexport) void cleanup_extension() {
             logarithm_host_services_->write_log(cleanup_msg.c_str(), cleanup_msg.size());
         }
     } catch (...) {
-        // Suppress all exceptions during cleanup
+        // Подавляем все исключения во время очистки
     }
     
     logarithm_extension_active = false;

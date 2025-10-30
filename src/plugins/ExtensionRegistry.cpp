@@ -22,15 +22,15 @@ ExtensionRegistry::~ExtensionRegistry() {
 }
 
 bool ExtensionRegistry::registerExtension(const std::string& library_path, std::string* error_output) {
-    // Create extension unit
+    // Создаем модуль расширения
     auto extension = std::make_shared<ExtensionUnit>();
     
-    // Load the extension
+    // Загружаем расширение
     if (!extension->loadExtension(library_path, error_output)) {
         return false;
     }
     
-    // Check for name conflicts
+    // Проверяем конфликты имен
     for (const auto& name : extension->getAllNames()) {
         std::string standardized_name = standardizeName(name);
         if (extensions_by_name_.count(standardized_name)) {
@@ -39,12 +39,12 @@ bool ExtensionRegistry::registerExtension(const std::string& library_path, std::
         }
     }
     
-    // Activate the extension
+    // Активируем расширение
     if (!extension->activate(&host_services_, error_output)) {
         return false;
     }
     
-    // Register in maps
+    // Регистрируем в картах
     for (const auto& name : extension->getAllNames()) {
         std::string standardized_name = standardizeName(name);
         extensions_by_name_[standardized_name] = extension;
@@ -62,14 +62,14 @@ bool ExtensionRegistry::removeExtension(const std::string& operation_name, std::
         return false;
     }
     
-    // Get the extension to remove it from path map as well
+    // Получаем расширение для удаления из карты путей
     auto extension = it->second;
     std::string library_path = extension->getLibraryPath();
     
-    // Remove from name map
+    // Удаляем из карты имен
     extensions_by_name_.erase(it);
     
-    // Remove from path map if no other names reference it
+    // Удаляем из карты путей, если нет других ссылок на него
     bool found_in_names = false;
     for (const auto& entry : extensions_by_name_) {
         if (entry.second->getLibraryPath() == library_path) {
@@ -95,13 +95,13 @@ bool ExtensionRegistry::removeExtensionByPath(const std::string& library_path, s
     
     auto extension = it->second;
     
-    // Remove all names associated with this extension
+    // Удаляем все имена, связанные с этим расширением
     for (const auto& name : extension->getAllNames()) {
         std::string standardized_name = standardizeName(name);
         extensions_by_name_.erase(standardized_name);
     }
     
-    // Remove from path map
+    // Удаляем из карты путей
     extensions_by_path_.erase(it);
     
     extension->deactivate();
@@ -111,13 +111,13 @@ bool ExtensionRegistry::removeExtensionByPath(const std::string& library_path, s
 void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
     std::error_code ec;
     
-    // Check if directory exists
+    // Проверяем существование директории
     if (!std::filesystem::exists(directory)) {
         std::cout << "Plugins directory not found: " << directory << ". Continuing without plugins." << std::endl;
         return;
     }
     
-    // Check if it's actually a directory
+    // Проверяем, что это действительно директория
     if (!std::filesystem::is_directory(directory)) {
         std::cerr << "Error: " << directory << " is not a directory. Continuing without plugins." << std::endl;
         return;
@@ -140,19 +140,19 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
         
         auto file_path = entry.path();
         
-        // Check if it's a valid library file
+        // Проверяем, является ли файл валидной библиотекой
         if (!isValidLibraryFile(file_path)) {
             continue;
         }
         
         std::string path_string = file_path.string();
         
-        // Check if already loaded
+        // Проверяем, не загружен ли уже плагин
         if (extensions_by_path_.count(path_string)) {
             continue;
         }
         
-        // Try to load the plugin
+        // Пытаемся загрузить плагин
         std::string error_msg;
         if (registerExtension(path_string, &error_msg)) {
             loadedPlugins.push_back(file_path.filename().string());
@@ -163,7 +163,7 @@ void ExtensionRegistry::scanExtensionsDirectory(const std::string& directory) {
         }
     }
     
-    // Print results
+    // Выводим результаты
     if (!loadedPlugins.empty()) {
         std::cout << "Loaded plugins: ";
         for (size_t i = 0; i < loadedPlugins.size(); ++i) {
@@ -224,7 +224,7 @@ double ExtensionRegistry::executeExtension(const std::string& operation_name,
 }
 
 void ExtensionRegistry::refreshExtensions() {
-    // Check for updated extensions
+    // Проверяем обновленные расширения
     for (auto& entry : extensions_by_path_) {
         const std::string& library_path = entry.first;
         auto extension = entry.second;
@@ -235,9 +235,9 @@ void ExtensionRegistry::refreshExtensions() {
             continue;
         }
         
-        // Compare file_time_type directly
+        // Сравниваем время модификации напрямую
         if (current_mod_time > extension->getModTime()) {
-            // File changed, reload it
+            // Файл изменился, перезагружаем его
             std::string error_msg;
             removeExtensionByPath(library_path, &error_msg);
             registerExtension(library_path, &error_msg);
@@ -248,7 +248,7 @@ void ExtensionRegistry::refreshExtensions() {
 std::string ExtensionRegistry::standardizeName(const std::string& name) const {
     std::string result = name;
     
-    // Trim whitespace
+    // Удаляем пробелы
     result.erase(result.begin(), std::find_if(result.begin(), result.end(), [](unsigned char c) {
         return !std::isspace(c);
     }));
@@ -256,7 +256,7 @@ std::string ExtensionRegistry::standardizeName(const std::string& name) const {
         return !std::isspace(c);
     }).base(), result.end());
     
-    // Convert to lowercase
+    // Преобразуем в нижний регистр
     std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
         return std::tolower(c);
     });
@@ -267,7 +267,7 @@ std::string ExtensionRegistry::standardizeName(const std::string& name) const {
 bool ExtensionRegistry::isValidLibraryFile(const std::filesystem::path& file_path) const {
     auto filename = file_path.filename().string();
     
-    // Skip hidden files, backups, temp files
+    // Пропускаем скрытые файлы, бэкапы, временные файлы
     if (filename.empty() || filename[0] == '.' || 
         filename.find('~') != std::string::npos ||
         filename.find(".tmp") != std::string::npos ||
@@ -275,14 +275,14 @@ bool ExtensionRegistry::isValidLibraryFile(const std::filesystem::path& file_pat
         return false;
     }
     
-    // Check extension - разрешаем и .dll и .exe
+    // Проверяем расширение
     auto extension = file_path.extension().string();
     std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
         return std::tolower(c);
     });
     
-    // Разрешаем оба расширения
-    return (extension == ".dll" || extension == ".exe");
+    // Разрешаем только .dll
+    return (extension == ".dll");
 }
 
 void ExtensionRegistry::removeBackupFiles() {

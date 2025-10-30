@@ -16,13 +16,13 @@ DynamicLibrary::~DynamicLibrary() {
     }
 }
 
-// Move constructor
+// Конструктор перемещения
 DynamicLibrary::DynamicLibrary(DynamicLibrary&& other) noexcept 
     : handle_(other.handle_), filePath_(std::move(other.filePath_)) {
     other.handle_ = nullptr;
 }
 
-// Move assignment
+// Оператор перемещения
 DynamicLibrary& DynamicLibrary::operator=(DynamicLibrary&& other) noexcept {
     if (this != &other) {
         if (handle_) {

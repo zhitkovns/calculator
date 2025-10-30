@@ -37,7 +37,7 @@ OperationType ExtensionOperationWrapper::getType() const {
 }
 
 int ExtensionOperationWrapper::getPriority() const {
-    return static_cast<int>(extension_->getPriority());
+    return extension_->getPriorityValue();
 }
 
 size_t ExtensionOperationWrapper::getArgumentCount() const {

@@ -1,52 +1,52 @@
 #pragma once
 #include <cstddef>
 
-// ABI version for compatibility
+// Версия ABI для совместимости
 #define EXTENSION_ABI_VERSION 1
 
-// Constants
+// Константы
 constexpr size_t ERROR_MESSAGE_SIZE = 256;
 
-// Host services provided to extensions
+// Сервисы хоста, предоставляемые расширениям
 struct HostServices {
     void (*write_log)(const char* message, size_t message_size);
     void (*write_error)(const char* message, size_t message_size);
 };
 
-// Extension metadata
+// Метаданные расширения
 struct ExtensionMeta {
-    int abi_version;                    // Must be EXTENSION_ABI_VERSION
-    const char* operation_name;         // Operation name like "logarithm", "sin"
-    size_t name_length;                 // Name length
+    int abi_version;                    // Должна быть EXTENSION_ABI_VERSION
+    const char* operation_name;         // Имя операции, например "logarithm", "sin"
+    size_t name_length;                 // Длина имени
     double (*compute)(size_t arg_count, const double* arguments, int* error_code, 
                      char* error_text, size_t error_buffer_size);
-    int min_parameters;                 // Minimum parameters
-    int max_parameters;                 // Maximum parameters (-1 = unlimited)
-    unsigned priority_level;            // Priority 0-4
-    bool is_operation;                  // Is this an operation like +, - etc.
-    bool right_to_left;                 // Right-to-left associativity
-    const char** additional_names;      // Additional names for this operation
-    size_t* additional_name_lengths;    // Additional name lengths
-    size_t additional_name_count;       // Number of additional names
+    int min_parameters;                 // Минимальное количество параметров
+    int max_parameters;                 // Максимальное количество параметров (-1 = неограничено)
+    unsigned priority_level;            // Уровень приоритета 0-4
+    bool is_operation;                  // Является ли операцией типа +, - и т.д.
+    bool right_to_left;                 // Ассоциативность справа налево
+    const char** additional_names;      // Дополнительные имена для этой операции
+    size_t* additional_name_lengths;    // Длины дополнительных имен
+    size_t additional_name_count;       // Количество дополнительных имен
 };
 
-// Extension function signatures
+// Сигнатуры функций расширения
 using get_extension_info_t = int(*)(ExtensionMeta** meta);
 using extension_setup_t = int(*)(const HostServices* services, char* error_text, size_t error_buffer_size);
 using extension_cleanup_t = void(*)();
 
-// Operation categories
+// Категории операций
 enum class OperationCategory {
-    TWO_OPERAND,    // Binary operations
-    SINGLE_OPERAND, // Unary operations  
-    MATH_FUNCTION   // Functions
+    TWO_OPERAND,    // Бинарные операции
+    SINGLE_OPERAND, // Унарные операции  
+    MATH_FUNCTION   // Функции
 };
 
-// Priority levels for operations
+// Уровни приоритета для операций
 enum class PriorityLevel {
     BASIC = 0,      // +, -
     STANDARD = 1,   // 
     MEDIUM = 2,     // *, /
     HIGH = 3,       // ^
-    TOP = 4         // functions
+    TOP = 4         // функции
 };

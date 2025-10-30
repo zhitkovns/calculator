@@ -4,16 +4,16 @@
 #include <string>
 
 static ExtensionMeta power_info;
-static HostServices* power_host_ = nullptr;
+static const HostServices* power_host_ = nullptr;
 static bool power_active = false;
 
 extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** output_info) {
     
-    // Additional names for power operator
+    // Дополнительные имена для оператора степени
     static const char* extra_names[] = {"pow", "exponent"};
     static size_t extra_name_sizes[] = {3, 8};
     
-    // Configure extension metadata
+    // Настраиваем метаданные расширения
     power_info.abi_version = EXTENSION_ABI_VERSION;
     power_info.operation_name = "^";
     power_info.name_length = 1;
@@ -26,7 +26,7 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
     power_info.additional_name_lengths = extra_name_sizes;
     power_info.additional_name_count = 2;
     
-    // Set the computation function with error handling
+    // Устанавливаем функцию вычисления с обработкой ошибок
     power_info.compute = [](size_t param_count, const double* parameters, int* error_code, 
                           char* error_text, size_t error_buffer_size) -> double
     {
@@ -43,9 +43,9 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
         double exponent = parameters[1];
         double result = 0.0;
         
-        // Handle special cases and errors
+        // Обрабатываем специальные случаи и ошибки
         try {
-            // Check for mathematical domain errors
+            // Проверяем математические ошибки области определения
             if (base == 0.0 && exponent < 0.0) {
                 *error_code = 2;
                 if (error_text && error_buffer_size > 0) {
@@ -66,7 +66,7 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
             
             result = std::pow(base, exponent);
             
-            // Check for overflow/underflow
+            // Проверяем переполнение/потерю точности
             if (std::isinf(result)) {
                 *error_code = 4;
                 if (error_text && error_buffer_size > 0) {
@@ -118,7 +118,7 @@ extern "C" __declspec(dllexport) int initialize_extension(const HostServices* se
         return 1;
     }
 
-    power_host_ = const_cast<HostServices*>(services);
+    power_host_ = services;
     power_active = true;
 
     if (power_host_->write_log) {

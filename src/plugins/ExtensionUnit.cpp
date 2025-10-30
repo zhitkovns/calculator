@@ -51,11 +51,11 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
     releaseResources();
     
     try {
-        // Load the dynamic library
+        // Загружаем динамическую библиотеку
         library_unit_ = std::make_shared<DynamicLibrary>(library_path);
         library_path_ = library_path;
         
-        // Find the metadata function
+        // Находим функцию метаданных
         get_info_func_ = library_unit_->getFunction<get_extension_info_t>("get_extension_metadata");
         if (!get_info_func_) {
             if (error_output) *error_output = "get_extension_metadata not found in " + library_path;
@@ -63,7 +63,7 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
             return false;
         }
         
-        // Retrieve extension metadata
+        // Получаем метаданные расширения
         ExtensionMeta* meta = nullptr;
         int status = get_info_func_(&meta);
         if (status != 0 || !meta) {
@@ -72,7 +72,7 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
             return false;
         }
         
-        // Validate metadata
+        // Проверяем метаданные
         if (!HostIntegration::validateExtensionMeta(meta, error_output)) {
             releaseResources();
             return false;
@@ -80,17 +80,17 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
         
         meta_data_ = meta;
         
-        // Find lifecycle functions
+        // Находим функции жизненного цикла
         setup_func_ = library_unit_->getFunction<extension_setup_t>("initialize_extension");
         cleanup_func_ = library_unit_->getFunction<extension_cleanup_t>("cleanup_extension");
         
-        // Collect all operation names
+        // Собираем все имена операций
         operation_names_.clear();
         if (meta_data_->operation_name && meta_data_->name_length > 0) {
             operation_names_.emplace_back(meta_data_->operation_name, meta_data_->name_length);
         }
         
-        // Add additional names
+        // Добавляем дополнительные имена
         if (meta_data_->additional_name_count > 0 && meta_data_->additional_names && meta_data_->additional_name_lengths) {
             for (size_t i = 0; i < meta_data_->additional_name_count; ++i) {
                 if (meta_data_->additional_names[i] && meta_data_->additional_name_lengths[i] > 0) {
@@ -99,7 +99,7 @@ bool ExtensionUnit::loadExtension(const std::string& library_path, std::string* 
             }
         }
         
-        // Record file modification time
+        // Записываем время модификации файла
         std::error_code ec;
         modification_time_ = std::filesystem::last_write_time(library_path, ec);
         if (ec) {
@@ -145,7 +145,7 @@ void ExtensionUnit::deactivate() {
         try {
             cleanup_func_();
         } catch (...) {
-            // Suppress exceptions during cleanup
+            // Подавляем исключения во время очистки
         }
         is_active_ = false;
     }
@@ -171,7 +171,19 @@ std::pair<int, int> ExtensionUnit::getParameterRange() const {
 
 PriorityLevel ExtensionUnit::getPriority() const {
     if (meta_data_ && meta_data_->is_operation) {
-        return static_cast<PriorityLevel>(std::min(meta_data_->priority_level, 4u));
+        // Используем безопасное преобразование
+        unsigned int raw_priority = meta_data_->priority_level;
+        unsigned int bounded_priority = (raw_priority < 5u) ? raw_priority : 4u;
+        
+        // Преобразуем через switch
+        switch (bounded_priority) {
+            case 0: return PriorityLevel::BASIC;
+            case 1: return PriorityLevel::STANDARD;
+            case 2: return PriorityLevel::MEDIUM;
+            case 3: return PriorityLevel::HIGH;
+            case 4: return PriorityLevel::TOP;
+            default: return PriorityLevel::STANDARD;
+        }
     }
     return PriorityLevel::TOP;
 }
@@ -207,11 +219,23 @@ double ExtensionUnit::compute(const std::vector<double>& parameters, std::string
         return 0.0;
     }
     
-    // Validate parameter count
+    // Проверяем количество параметров
     size_t param_count = parameters.size();
-    if (!((meta_data_->max_parameters == -1 && param_count >= static_cast<size_t>(meta_data_->min_parameters)) ||
-          (param_count >= static_cast<size_t>(meta_data_->min_parameters) && 
-           param_count <= static_cast<size_t>(meta_data_->max_parameters)))) {
+    
+    // Преобразуем min_parameters и max_parameters в size_t
+    size_t min_params = (meta_data_->min_parameters >= 0) ? meta_data_->min_parameters : 0;
+    size_t max_params = (meta_data_->max_parameters >= 0) ? meta_data_->max_parameters : 0;
+    
+    bool valid_params = false;
+    if (meta_data_->max_parameters == -1) {
+        // Неограниченное количество параметров
+        valid_params = (param_count >= min_params);
+    } else {
+        // Ограниченное количество параметров
+        valid_params = (param_count >= min_params && param_count <= max_params);
+    }
+    
+    if (!valid_params) {
         if (error_output) *error_output = "Parameter count does not match requirements";
         return 0.0;
     }
@@ -254,4 +278,16 @@ void ExtensionUnit::releaseResources() {
 
 bool ExtensionUnit::isRightAssociative() const {
     return meta_data_ && meta_data_->right_to_left;
+}
+
+int ExtensionUnit::getPriorityValue() const {
+    PriorityLevel level = getPriority();
+    switch (level) {
+        case PriorityLevel::BASIC: return 0;
+        case PriorityLevel::STANDARD: return 1;
+        case PriorityLevel::MEDIUM: return 2;
+        case PriorityLevel::HIGH: return 3;
+        case PriorityLevel::TOP: return 4;
+        default: return 1;
+    }
 }

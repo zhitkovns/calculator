@@ -34,4 +34,5 @@ private:
     // Вспомогательные методы
     bool isNumber(const std::string& token) const;
     bool isOperator(const std::string& token) const;
+    double stringToDouble(const std::string& str) const;
 };

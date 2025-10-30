@@ -4,16 +4,16 @@
 #include <string>
 
 static ExtensionMeta unary_minus_info;
-static HostServices* unary_minus_host_ = nullptr;
+static const HostServices* unary_minus_host_ = nullptr;
 static bool unary_minus_active = false;
 
 extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** output_info) {
     
-    // Additional names for unary minus
+    // Дополнительные имена для унарного минуса
     static const char* extra_names[] = {"negate", "negative"};
     static size_t extra_name_sizes[] = {6, 8};
     
-    // Configure extension metadata - ИЗМЕНИЛИ ИМЯ НА "unary_minus"
+    // Настраиваем метаданные расширения
     unary_minus_info.abi_version = EXTENSION_ABI_VERSION;
     unary_minus_info.operation_name = "unary_minus";
     unary_minus_info.name_length = 11;              
@@ -26,7 +26,7 @@ extern "C" __declspec(dllexport) int get_extension_metadata(ExtensionMeta** outp
     unary_minus_info.additional_name_lengths = extra_name_sizes;
     unary_minus_info.additional_name_count = 2;
     
-    // Set the computation function
+    // Устанавливаем функцию вычисления
     unary_minus_info.compute = [](size_t param_count, const double* parameters, int* error_code, 
                                 char* error_text, size_t error_buffer_size) -> double
     {
@@ -58,7 +58,7 @@ extern "C" __declspec(dllexport) int initialize_extension(const HostServices* se
         return 1;
     }
 
-    unary_minus_host_ = const_cast<HostServices*>(services);
+    unary_minus_host_ = services;
     unary_minus_active = true;
 
     if (unary_minus_host_->write_log) {

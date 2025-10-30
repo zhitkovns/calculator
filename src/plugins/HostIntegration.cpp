@@ -25,32 +25,32 @@ bool validateExtensionMeta(const ExtensionMeta* meta, std::string* error_output)
         return false;
     }
     
-    // Check ABI version
+    // Проверяем версию ABI
     if (meta->abi_version != EXTENSION_ABI_VERSION) {
         if (error_output) *error_output = "ABI version mismatch";
         return false;
     }
     
-    // Check name
+    // Проверяем имя
     if (!meta->operation_name || meta->name_length == 0) {
         if (error_output) *error_output = "Invalid operation name";
         return false;
     }
     
-    // Check function pointer
+    // Проверяем указатель на функцию
     if (!meta->compute) {
         if (error_output) *error_output = "No compute function provided";
         return false;
     }
     
-    // Validate parameter range
+    // Проверяем диапазон параметров
     if (meta->min_parameters < 0 || 
         (meta->max_parameters != -1 && meta->max_parameters < meta->min_parameters)) {
         if (error_output) *error_output = "Invalid parameter range";
         return false;
     }
     
-    // Validate alternative names
+    // Проверяем альтернативные имена
     if (meta->additional_name_count > 0) {
         if (!meta->additional_names || !meta->additional_name_lengths) {
             if (error_output) *error_output = "Invalid alternative names structure";
@@ -87,4 +87,4 @@ std::string getSystemError() {
     return result;
 }
 
-} // namespace HostIntegration
+}

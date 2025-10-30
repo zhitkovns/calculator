@@ -15,14 +15,14 @@ std::unique_ptr<Node> ExpressionParser::parse(const std::string& expression) {
     }
 
     try {
-        // Tokenize expression
+        // Токенизируем выражение
         auto tokens = tokenize(expression);
         
         if (tokens.empty()) {
             throw std::invalid_argument("No tokens to parse");
         }
         
-        // Parse tokens to AST
+        // Парсим токены в AST
         size_t index = 0;
         auto result = parseExpression(tokens, index);
         
@@ -51,7 +51,8 @@ std::vector<std::string> ExpressionParser::tokenize(const std::string& expressio
     for (size_t i = 0; i < expression.length(); ++i) {
         char c = expression[i];
         
-        if (std::isspace(static_cast<unsigned char>(c))) {
+        // Проверка пробела
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
             if (!currentToken.empty()) {
                 tokens.push_back(currentToken);
                 currentToken.clear();
@@ -66,12 +67,12 @@ std::vector<std::string> ExpressionParser::tokenize(const std::string& expressio
             }
             tokens.push_back(std::string(1, c));
         } 
-        else if (std::isdigit(static_cast<unsigned char>(c)) || c == '.' || 
+        else if (std::isdigit(c) || c == '.' || 
                  (c == '-' && currentToken.empty() && (i == 0 || expression[i-1] == '(' || isOperator(std::string(1, expression[i-1]))))) {
             currentToken += c;
         }
-        // Проверьте, является ли символ буквой (для имен функций)
-        else if (std::isalpha(static_cast<unsigned char>(c))) {
+        // Проверка буквы
+        else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
             currentToken += c;
         }
         else {
@@ -92,10 +93,10 @@ std::unique_ptr<Node> ExpressionParser::parseExpression(const std::vector<std::s
     while (index < tokens.size()) {
         std::string token = tokens[index];
         
-        // Handle operators from plugins with priority 1 (+, -)
+        // Обрабатывать операторы из плагинов с приоритетом 1 (+, -)
         IOperation* op = operationFactory_.getOperation(token);
         if (op && op->getType() == OperationType::BINARY && op->getPriority() == 1) {
-            index++; // Consume operator
+            index++;
             auto right = parseTerm(tokens, index);
             left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
         } else {
@@ -117,14 +118,14 @@ std::unique_ptr<Node> ExpressionParser::parseTerm(const std::vector<std::string>
             break;
         }
         
-        // Handle operators based on their priority
+        // Обрабатываем запросы операторов в соответствии с их приоритетом
         if (op->getPriority() == 2) { // *, /
-            index++; // Consume operator
+            index++;
             auto right = parseFactor(tokens, index);
             left = std::make_unique<BinaryNode>(std::move(left), std::move(right), op);
         } 
         else if (op->getPriority() == 3) { // ^
-            index++; // Consume operator
+            index++;
             
             // Для лево-ассоциативных операторов, парсим правую сторону как Factor
             if (!op->isRightAssociative()) {
@@ -150,33 +151,33 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
     
     std::string token = tokens[index];
     
-    // Handle numbers
+    // Обрабатываем числа
     if (isNumber(token)) {
-        double value = std::stod(token);
+        double value = stringToDouble(token);
         index++;
         return std::make_unique<NumberNode>(value);
     }
     
-    // Handle parentheses
+    // Обрабатываем скобки
     if (token == "(") {
-        index++; // Consume "("
+        index++; // "("
         auto expr = parseExpression(tokens, index);
         
         if (index >= tokens.size() || tokens[index] != ")") {
             throw std::runtime_error("Expected closing parenthesis");
         }
-        index++; // Consume ")"
+        index++; // ")"
         
         return expr;
     }
     
-    // Handle unary minus
+    // Обрабатываем унарный минус
     if (token == "-") {
-        // Check if this is unary minus context
+        // Является ли унарным минусом
         if (index == 0 || tokens[index - 1] == "(" || isOperator(tokens[index - 1])) {
-            index++; // Consume "-"
+            index++; // "-"
             
-            // Get unary minus operation from plugin
+            // Получаем унарный минус из плагинов
             IOperation* unaryMinus = operationFactory_.getOperation("unary_minus");
             if (!unaryMinus) {
                 throw std::runtime_error("Unary minus operation not found");
@@ -187,36 +188,35 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
         }
     }
     
-    // Handle other unary operations from plugins
+    // Обрабатываем другие унарные операции из плагинов
     IOperation* unaryOp = operationFactory_.getOperation(token);
     if (unaryOp && unaryOp->getType() == OperationType::UNARY) {
-        // Check if this is actually a unary context
+        // Является ли унарным
         if (index == 0 || tokens[index - 1] == "(" || isOperator(tokens[index - 1])) {
-            index++; // Consume operator
+            index++;
             auto operand = parseFactor(tokens, index);
             return std::make_unique<UnaryNode>(std::move(operand), unaryOp);
         }
     }
     
-    // Handle functions from plugins
+    // Обрабатываем функции из плагинов
     IOperation* func = operationFactory_.getOperation(token);
     if (func && func->getType() == OperationType::FUNCTION) {
-        index++; // Consume function name
+        index++; // Имя функции
         
-        // Check for opening parenthesis
+        // Проверка на открытые скобки
         if (index >= tokens.size() || tokens[index] != "(") {
             throw std::runtime_error("Expected '(' after function " + token);
         }
-        index++; // Consume "("
-        
-        // Parse argument
+        index++; // "("
+
         auto argument = parseExpression(tokens, index);
         
-        // Check for closing parenthesis
+        // Проверка на закрывающие скобки
         if (index >= tokens.size() || tokens[index] != ")") {
             throw std::runtime_error("Expected ')' after function argument");
         }
-        index++; // Consume ")"
+        index++; // ")"
         
         return std::make_unique<UnaryNode>(std::move(argument), func);
     }
@@ -227,25 +227,55 @@ std::unique_ptr<Node> ExpressionParser::parseFactor(const std::vector<std::strin
 bool ExpressionParser::isNumber(const std::string& token) const {
     if (token.empty()) return false;
     
-    try {
-        size_t pos;
-        std::stod(token, &pos);
-        return pos == token.length();
-    } catch (...) {
-        return false;
+    bool hasDecimalPoint = false;
+    bool hasDigits = false;
+    
+    for (size_t i = 0; i < token.length(); ++i) {
+        char c = token[i];
+        
+        if (c == '-' && i == 0) {
+            // Разрешаем минус в начале
+            continue;
+        }
+        else if (c == '.') {
+            if (hasDecimalPoint) {
+                return false; // Две точки не допускаются
+            }
+            hasDecimalPoint = true;
+        }
+        else if (std::isdigit(c)) {
+            hasDigits = true;
+        }
+        else {
+            return false; // Недопустимый символ
+        }
     }
+    
+    return hasDigits; // Должна быть хотя бы одна цифра
+}
+
+double ExpressionParser::stringToDouble(const std::string& str) const {
+    std::istringstream iss(str);
+    double value;
+    iss >> value;
+    
+    if (iss.fail() || !iss.eof()) {
+        throw std::runtime_error("Invalid number format: " + str);
+    }
+    
+    return value;
 }
 
 bool ExpressionParser::isOperator(const std::string& token) const {
     IOperation* op = operationFactory_.getOperation(token);
     if (!op) return false;
     
-    // Consider binary operations as operators
+    // Рассматриваем бинарные операции как операторы
     if (op->getType() == OperationType::BINARY) {
         return true;
     }
     
-    // Also consider unary operations that can be used as operators
+    // Также рассматриваем унарные операции как операторы
     if (op->getType() == OperationType::UNARY && op->getArgumentCount() == 1) {
         return true;
     }

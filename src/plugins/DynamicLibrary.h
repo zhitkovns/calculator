@@ -19,10 +19,29 @@ public:
     DynamicLibrary(DynamicLibrary&& other) noexcept;
     DynamicLibrary& operator=(DynamicLibrary&& other) noexcept;
 
-    // Получение функции из DLL
-    template<typename T>
-    T getFunction(const std::string& functionName) {
-        return reinterpret_cast<T>(GetProcAddress(handle_, functionName.c_str()));
+    // Получение указателя на функцию из DLL
+    void* getFunctionPointer(const std::string& functionName) {
+        return GetProcAddress(handle_, functionName.c_str());
+    }
+
+    // Получение функции с проверкой типа через шаблон
+    template<typename FunctionType>
+    FunctionType getFunction(const std::string& functionName) {
+        void* funcPtr = getFunctionPointer(functionName);
+        if (!funcPtr) {
+            return nullptr;
+        }
+        
+        // Используем union для преобразования типов
+        union FunctionConverter {
+            void* ptr;
+            FunctionType func;
+            
+            FunctionConverter() : ptr(nullptr) {}
+        } converter;
+        
+        converter.ptr = funcPtr;
+        return converter.func;
     }
 
     bool isLoaded() const;

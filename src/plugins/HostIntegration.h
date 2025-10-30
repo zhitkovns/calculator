@@ -3,10 +3,10 @@
 #include <string>
 
 namespace HostIntegration {
-    // Setup host services for extensions
+    // Настройка сервисов хоста для расширений
     void configureHostServices(HostServices* services);
     
-    // Validation utilities
+    // Утилиты валидации
     bool validateExtensionMeta(const ExtensionMeta* meta, std::string* error_output = nullptr);
     std::string getSystemError();
 }
